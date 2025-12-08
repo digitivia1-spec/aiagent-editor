@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Command Center</title>
+    <style>
+        :root {
+            /* User Defined Palette */
+            --primary-blue: #4363E8;
+            --glass-bg: rgba(93, 93, 91, 0.25); /* Based on #5D5D5B */
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-dark: #0f1014; /* Deep dark background to make glass pop */
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --success: #2ecc71;
+            --error: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(67, 99, 232, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(93, 93, 91, 0.15) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Glassmorphism Utils --- */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--primary-blue);
+        }
+
+        /* Desktop Menu */
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 0 15px rgba(67, 99, 232, 0.4);
+        }
+
+        /* Mobile Menu Button */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* --- Main Content --- */
+        main {
+            flex: 1;
+            padding: 6rem 1rem 2rem 1rem;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            display: inline-block;
+        }
+
+        /* --- Inputs & Buttons --- */
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: border 0.3s;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .suggestions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .pill-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .action-container {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .save-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(67, 99, 232, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 99, 232, 0.5);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        /* --- Toast Notification --- */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        #toast.success { border-left: 4px solid var(--success); }
+        #toast.error { border-left: 4px solid var(--error); }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background: #1a1b20;
+                flex-direction: column;
+                gap: 0;
+                border-bottom: 1px solid var(--glass-border);
+                display: none;
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-item {
+                border-radius: 0;
+                padding: 1.5rem;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.03);
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            main {
+                padding: 5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="glass">
+        <div class="logo">AGENT<span style="color:white">CONTROLLER</span></div>
+        <div class="hamburger" onclick="toggleMenu()">☰</div>
+        <div class="nav-links" id="navLinks">
+            <div class="nav-item active" onclick="switchTab('whatsapp', this)">WhatsApp Agent</div>
+            <div class="nav-item" onclick="switchTab('messenger', this)">Messenger Agent</div>
+            <div class="nav-item" onclick="switchTab('instagram', this)">Instagram Agent</div>
+        </div>
+    </nav>
+
+    <main>
+        
+        <div id="whatsapp" class="tab-content active">
+            <div class="card glass">
+                <h2><span class="icon-circle"></span> WhatsApp Agent</h2>
+                <label>Agent role (System prompt)</label>
+                <textarea id="prompt-whatsapp" placeholder="Define how your agent should behave..."></textarea>
+                
+                <div class="suggestions">
+                    <button class="pill-btn" onclick="applySuggestion('whatsapp', 'customer_service')">✨ Customer Service</button>
+                    <button class="pill-btn" onclick="applySuggestion('whatsapp', 'sales')">🚀 Sales Agent</button>
+                </div>
+
+                <div class="action-container">
+                    <button class="save-btn" onclick="saveRole('whatsapp')">Save Role</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="messenger" class="tab-content">
+            <div class="card glass">
+                <h2><span class="icon-circle" style="background: #a960ee;"></span> Messenger Agent</h2>
+                <label>Agent role (System prompt)</label>
+                <textarea id="prompt-messenger" placeholder="Define how your agent should behave..."></textarea>
+                
+                <div class="suggestions">
+                    <button class="pill-btn" onclick="applySuggestion('messenger', 'customer_service')">✨ Customer Service</button>
+                    <button class="pill-btn" onclick="applySuggestion('messenger', 'sales')">🚀 Sales Agent</button>
+                </div>
+
+                <div class="action-container">
+                    <button class="save-btn" onclick="saveRole('messenger')">Save Role</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="instagram" class="tab-content">
+            <div class="card glass">
+                <h2><span class="icon-circle" style="background: #e1306c;"></span> Instagram Agent</h2>
+                <label>Agent role (System prompt)</label>
+                <textarea id="prompt-instagram" placeholder="Define how your agent should behave..."></textarea>
+                
+                <div class="suggestions">
+                    <button class="pill-btn" onclick="applySuggestion('instagram', 'customer_service')">✨ Customer Service</button>
+                    <button class="pill-btn" onclick="applySuggestion('instagram', 'sales')">🚀 Sales Agent</button>
+                </div>
+
+                <div class="action-container">
+                    <button class="save-btn" onclick="saveRole('instagram')">Save Role</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="toast">Saved Successfully!</div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // 🔴 PASTE YOUR N8N WEBHOOK URL HERE 🔴
+        const WEBHOOK_URL = "YOUR_WEBHOOK_URL_HERE"; 
+
+        // --- PRE-DEFINED PROMPTS ---
+        const templates = {
+            customer_service: "You are an empathetic and efficient Customer Service Agent. Your goal is to resolve user issues with patience and clarity. Always prioritize the user's satisfaction, use polite language, and provide step-by-step solutions. If you don't know an answer, admit it and offer to escalate to a human.",
+            sales: "You are a persuasive and energetic Sales Agent. Your goal is to understand the customer's needs and recommend the perfect product. Focus on benefits over features. Be friendly, keep responses concise, and always end with a call to action or a question to keep the conversation going."
+        };
+
+        // --- INIT (Load from Storage) ---
+        window.onload = function() {
+            loadFromStorage('whatsapp');
+            loadFromStorage('messenger');
+            loadFromStorage('instagram');
+        };
+
+        // --- NAVIGATION LOGIC ---
+        function switchTab(agentName, element) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // Remove active class from nav items
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(agentName).classList.add('active');
+            // Highlight nav item
+            if(element) element.classList.add('active');
+
+            // Close mobile menu if open
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks.classList.contains('open')) {
+                toggleMenu();
+            }
+        }
+
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const hamburger = document.querySelector('.hamburger');
+            navLinks.classList.toggle('open');
+            hamburger.innerHTML = navLinks.classList.contains('open') ? '✕' : '☰';
+        }
+
+        // --- CORE LOGIC ---
+        
+        // 1. Apply Suggestion
+        function applySuggestion(agent, type) {
+            const textarea = document.getElementById(`prompt-${agent}`);
+            textarea.value = templates[type];
+            // Trigger auto-save to local storage
+            localStorage.setItem(`agent_prompt_${agent}`, templates[type]);
+        }
+
+        // 2. Load Data on Refresh
+        function loadFromStorage(agent) {
+            const savedData = localStorage.getItem(`agent_prompt_${agent}`);
+            if (savedData) {
+                document.getElementById(`prompt-${agent}`).value = savedData;
+            }
+            
+            // Add listener to save on typing
+            document.getElementById(`prompt-${agent}`).addEventListener('input', function(e) {
+                localStorage.setItem(`agent_prompt_${agent}`, e.target.value);
+            });
+        }
+
+        // 3. Save Role (Webhook)
+        async function saveRole(agent) {
+            const promptText = document.getElementById(`prompt-${agent}`).value;
+            const btn = document.querySelector(`#${agent} .save-btn`);
+            const originalText = btn.innerHTML;
+
+            // UI Feedback: Loading
+            btn.innerHTML = "Sending...";
+            btn.style.opacity = "0.7";
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        agent_source: agent, // 'whatsapp', 'messenger', or 'instagram'
+                        system_prompt: promptText,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    showToast("Role saved successfully!", "success");
+                } else {
+                    throw new Error("Webhook failed");
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("Error saving role. Check console.", "error");
+            } finally {
+                // UI Feedback: Reset
+                btn.innerHTML = originalText;
+                btn.style.opacity = "1";
+            }
+        }
+
+        // --- UTILS ---
+        function showToast(message, type) {
+            const toast = document.getElementById("toast");
+            toast.className = type; // success or error
+            toast.innerText = message;
+            toast.classList.add("show");
+            setTimeout(function(){ toast.classList.remove("show"); }, 3000);
+        }
+    </script>
+</body>
+</html>
