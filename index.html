@@ -58,13 +58,7 @@
             align-items: center;
         }
 
-        .logo {
-            font-weight: 700;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-            color: var(--primary-blue);
-        }
-
+        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; color: var(--primary-blue); }
         .nav-links { display: flex; gap: 2rem; }
         .nav-item {
             cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;
@@ -75,10 +69,7 @@
         .hamburger { display: none; cursor: pointer; font-size: 1.5rem; }
 
         /* --- Main Content --- */
-        main {
-            flex: 1; padding: 6rem 1rem 2rem 1rem; max-width: 800px; width: 100%; margin: 0 auto;
-        }
-
+        main { flex: 1; padding: 6rem 1rem 2rem 1rem; max-width: 800px; width: 100%; margin: 0 auto; }
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -96,7 +87,6 @@
         .section-header:hover { color: var(--primary-blue); }
         .section-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.3s; }
         .section-header.active::after { transform: rotate(180deg); }
-
         .section-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease; opacity: 0; }
         .section-content.open { max-height: 1000px; opacity: 1; margin-top: 1rem; }
 
@@ -111,7 +101,7 @@
         select { appearance: none; cursor: pointer; }
         select option { background: #1a1b20; color: white; }
 
-        /* --- Links Dynamic --- */
+        /* --- Dynamic Links --- */
         .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .remove-link { 
             background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3);
@@ -119,49 +109,31 @@
             border-radius: 12px; cursor: pointer; font-size: 1.2rem;
         }
         .add-link-btn { width: 100%; margin-top: 5px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 50px; border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.85rem; }
-        .add-link-btn:hover { background: rgba(255,255,255,0.1); color: white; }
 
         /* --- Chat Window --- */
-        .chat-container {
-            background: rgba(0, 0, 0, 0.3); border-radius: 12px; border: 1px solid var(--glass-border);
-            overflow: hidden; display: flex; flex-direction: column; height: 400px;
-        }
+        .chat-container { background: rgba(0, 0, 0, 0.3); border-radius: 12px; border: 1px solid var(--glass-border); overflow: hidden; display: flex; flex-direction: column; height: 400px; }
         .chat-history { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .message { max-width: 80%; padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .msg-ai { align-self: flex-start; background: var(--ai-msg-bg); border-bottom-left-radius: 2px; color: #ddd; }
         .msg-user { align-self: flex-end; background: var(--primary-blue); border-bottom-right-radius: 2px; color: white; }
-        
         .chat-input-area { padding: 10px; background: rgba(255,255,255,0.03); display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
         .chat-input-area input { padding: 0.8rem; border-radius: 50px; flex: 1; }
-        .send-chat-btn {
-            width: 45px; height: 45px; border-radius: 50%; background: var(--primary-blue); color: white;
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        }
+        .send-chat-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary-blue); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .send-chat-btn:hover { transform: scale(1.1); }
 
-        /* --- Action & Suggestions --- */
+        /* --- Actions --- */
         .suggestions { margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
-        .pill-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px;
-            cursor: pointer; font-size: 0.85rem; transition: all 0.3s;
-        }
+        .pill-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
         .pill-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.3); }
-        
         .action-container { margin-top: 1rem; display: flex; justify-content: flex-end; }
-        .save-btn {
-            background: var(--primary-blue); color: white; border: none; padding: 0.8rem 2rem;
-            border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(67, 99, 232, 0.3); transition: transform 0.2s, box-shadow 0.2s;
-        }
+        .save-btn { background: var(--primary-blue); color: white; border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(67, 99, 232, 0.3); transition: transform 0.2s, box-shadow 0.2s; }
         .save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 99, 232, 0.5); }
 
-        /* --- Overlays --- */
+        /* --- Toast & Loader --- */
         #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         #toast.success { border-left: 4px solid var(--success); }
         #toast.error { border-left: 4px solid var(--error); }
-
         #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 16, 20, 0.85); backdrop-filter: blur(5px); z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 15px; transition: opacity 0.5s ease; }
         .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: var(--primary-blue); animation: spin 1s ease-in-out infinite; }
         .loading-text { font-size: 0.9rem; color: var(--text-muted); }
@@ -214,14 +186,7 @@
             { id: 'instagram', name: 'Instagram Agent', color: '#e1306c' }
         ];
 
-        const TONE_OPTIONS = [
-            "Professional & Formal",
-            "Friendly & Casual",
-            "Empathetic & Helpful",
-            "Sales-Oriented & Persuasive",
-            "Witty & Humorous"
-        ];
-
+        const TONE_OPTIONS = ["Professional & Formal", "Friendly & Casual", "Empathetic & Helpful", "Sales-Oriented & Persuasive", "Witty & Humorous"];
         const PROMPT_TEMPLATES = {
             customer_service: "You are an empathetic and efficient Customer Service Agent. Your goal is to resolve user issues with patience.",
             sales: "You are a persuasive and energetic Sales Agent. Your goal is to understand the customer's needs and recommend the perfect product."
@@ -230,10 +195,8 @@
         // --- 1. BUILD UI ---
         function buildInterface() {
             const container = document.getElementById('dynamic-content-area');
-            
             AGENTS.forEach((agent, index) => {
                 const isActive = index === 0 ? 'active' : '';
-                
                 const html = `
                 <div id="${agent.id}" class="tab-content ${isActive}">
                     <div class="card glass">
@@ -289,8 +252,7 @@
                             <button class="save-btn" onclick="saveRole('${agent.id}')">Save Role</button>
                         </div>
                     </div>
-                </div>
-                `;
+                </div>`;
                 container.innerHTML += html;
             });
         }
@@ -300,108 +262,71 @@
             fetchCurrentConfigurations();
         };
 
-        // --- 2. LINK LOGIC (Split & Join) ---
+        // --- 2. LOGIC ---
         function addLinkField(agentId, value = "") {
             const container = document.getElementById(`links-container-${agentId}`);
             const div = document.createElement('div');
             div.className = 'link-row';
-            div.innerHTML = `
-                <input type="text" class="link-input" value="${value}" placeholder="https://...">
-                <div class="remove-link" onclick="this.parentElement.remove()">×</div>
-            `;
+            div.innerHTML = `<input type="text" class="link-input" value="${value}" placeholder="https://..."><div class="remove-link" onclick="this.parentElement.remove()">×</div>`;
             container.appendChild(div);
         }
 
         function getLinksAsCommaString(agentId) {
             const inputs = document.querySelectorAll(`#links-container-${agentId} .link-input`);
-            // Filter empty, join by comma
-            return Array.from(inputs)
-                .map(input => input.value.trim())
-                .filter(val => val !== "")
-                .join(', ');
+            return Array.from(inputs).map(input => input.value.trim()).filter(val => val !== "").join(', ');
         }
 
-        // --- 3. DATA FETCHING (GET) ---
         async function fetchCurrentConfigurations() {
             const loader = document.getElementById('loader-overlay');
             try {
                 const response = await fetch(CONFIG_WEBHOOK, { method: 'GET' });
                 if (response.ok) {
                     const data = await response.json();
-                    
                     AGENTS.forEach(agent => {
-                        // A. System Prompt (column: system_prompt_whatsapp)
                         const promptVal = data[`system_prompt_${agent.id}`];
                         if(promptVal) document.getElementById(`prompt-${agent.id}`).value = promptVal;
-                        
-                        // B. Agent Tone (column: agent_tone_whatsapp)
                         const toneVal = data[`agent_tone_${agent.id}`];
                         if(toneVal) document.getElementById(`tone-${agent.id}`).value = toneVal;
-
-                        // C. Links (column: links_whatsapp)
                         const linksVal = data[`links_${agent.id}`];
                         if(linksVal) {
-                            // Split string "link1, link2" back into array
                             const linksArray = linksVal.split(',');
                             linksArray.forEach(link => addLinkField(agent.id, link.trim()));
                         } else {
-                            addLinkField(agent.id); // Add one empty by default
+                            addLinkField(agent.id);
                         }
                     });
                 }
-            } catch (error) {
-                console.error("Fetch error", error);
-                AGENTS.forEach(a => addLinkField(a.id));
-            } finally {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 500);
-            }
+            } catch (error) { console.error("Fetch error", error); AGENTS.forEach(a => addLinkField(a.id)); } 
+            finally { loader.style.opacity = '0'; setTimeout(() => { loader.style.display = 'none'; }, 500); }
         }
 
-        // --- 4. DATA SAVING (POST) ---
         async function saveRole(agentId) {
             const prompt = document.getElementById(`prompt-${agentId}`).value;
             const tone = document.getElementById(`tone-${agentId}`).value;
-            const linksString = getLinksAsCommaString(agentId); // Get as "url1, url2"
-            
+            const linksString = getLinksAsCommaString(agentId);
             const btn = document.querySelector(`#${agentId} .save-btn`);
             const originalText = btn.innerText;
             btn.innerText = "Saving...";
             
             try {
-                // ⚠️ DYNAMIC KEYS: This sends the EXACT keys you requested
-                // Example Payload: { "agent_source": "whatsapp", "system_prompt": "...", "agent_tone_whatsapp": "...", "links_whatsapp": "..." }
-                
                 const payload = {
                     agent_source: agentId,
-                    system_prompt: prompt, // Usually the "Update Row" logic uses this generic key + agent_source to find the column, OR we can send specific key:
+                    system_prompt: prompt,
                     timestamp: new Date().toISOString()
                 };
-
-                // Add specific keys to payload for easy mapping in n8n
                 payload[`agent_tone_${agentId}`] = tone;
                 payload[`links_${agentId}`] = linksString;
-                
-                // Also sending generic 'system_prompt' for your existing logic, 
-                // but if you want specific keys for prompt too, we can add:
-                // payload[`system_prompt_${agentId}`] = prompt; 
 
                 await fetch(CONFIG_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
                 showToast("Saved Successfully!", "success");
-            } catch(e) {
-                console.error(e);
-                showToast("Error saving data", "error");
-            } finally {
-                btn.innerText = originalText;
-            }
+            } catch(e) { showToast("Error saving data", "error"); } 
+            finally { btn.innerText = originalText; }
         }
 
-        // --- 5. CHAT & UI UTILS ---
         function switchTab(agentName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -435,6 +360,7 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
+        // --- CHAT LOGIC (UPDATED FOR 'MESSAGE' COLUMN) ---
         async function loadChatHistory(agentId) {
             const historyContainer = document.getElementById(`chat-history-${agentId}`);
             try {
@@ -442,9 +368,18 @@
                 const response = await fetch(url);
                 if(response.ok) {
                     const data = await response.json();
-                    if(data.messages && Array.isArray(data.messages)) {
+                    
+                    // Handle if n8n returns object { messages: [...] } OR direct array [...]
+                    let messages = [];
+                    if(data.messages && Array.isArray(data.messages)) messages = data.messages;
+                    else if(Array.isArray(data)) messages = data;
+                    
+                    if(messages.length > 0) {
                         historyContainer.innerHTML = ''; 
-                        data.messages.forEach(msg => appendMessage(agentId, msg.sender, msg.text));
+                        messages.forEach(msg => {
+                            // ⚠️ FIX: Uses msg.message instead of msg.text to match DB
+                            appendMessage(agentId, msg.sender, msg.message); 
+                        });
                         scrollToBottom(agentId);
                     }
                 }
@@ -469,12 +404,15 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         agent_source: agentId,
-                        message: text,
+                        message: text, // Matches DB column 'message'
+                        sender: 'user', // Added sender for clarity
                         timestamp: new Date().toISOString()
                     })
                 });
                 const data = await response.json();
                 document.getElementById(loadingId).remove();
+                
+                // Expects { reply: "..." } or { output: "..." } from n8n
                 appendMessage(agentId, 'ai', data.reply || data.output || "No reply received.");
                 scrollToBottom(agentId);
             } catch(e) {
