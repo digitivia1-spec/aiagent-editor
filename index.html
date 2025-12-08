@@ -65,42 +65,18 @@
             color: var(--primary-blue);
         }
 
-        /* Desktop Menu */
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
+        .nav-links { display: flex; gap: 2rem; }
         .nav-item {
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            color: var(--text-muted);
-            font-size: 0.9rem;
+            cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;
+            transition: all 0.3s ease; color: var(--text-muted); font-size: 0.9rem;
         }
-
-        .nav-item:hover {
-            color: white;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .nav-item.active {
-            background: var(--primary-blue);
-            color: white;
-            box-shadow: 0 0 15px rgba(67, 99, 232, 0.4);
-        }
-
-        /* Mobile Menu */
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-item.active { background: var(--primary-blue); color: white; box-shadow: 0 0 15px rgba(67, 99, 232, 0.4); }
         .hamburger { display: none; cursor: pointer; font-size: 1.5rem; }
 
         /* --- Main Content --- */
         main {
-            flex: 1;
-            padding: 6rem 1rem 2rem 1rem;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
+            flex: 1; padding: 6rem 1rem 2rem 1rem; max-width: 800px; width: 100%; margin: 0 auto;
         }
 
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
@@ -112,64 +88,58 @@
         .icon-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--primary-blue); display: inline-block; }
 
         /* --- Accordion Styles --- */
-        .section-wrapper {
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 1.5rem;
-        }
-        
+        .section-wrapper { margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1.5rem; }
         .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 0.5rem 0;
-            color: var(--text-main);
-            font-weight: 600;
-            font-size: 1rem;
-            transition: color 0.3s;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            padding: 0.5rem 0; color: var(--text-main); font-weight: 600; font-size: 1rem; transition: color 0.3s;
         }
-        
         .section-header:hover { color: var(--primary-blue); }
         .section-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.3s; }
         .section-header.active::after { transform: rotate(180deg); }
 
-        .section-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, opacity 0.3s ease;
-            opacity: 0;
-        }
+        .section-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease; opacity: 0; }
+        .section-content.open { max-height: 1000px; opacity: 1; margin-top: 1rem; }
 
-        .section-content.open {
-            max-height: 1000px; /* Large enough to fit content */
-            opacity: 1;
-            margin-top: 1rem;
-        }
-
-        /* --- Inputs & Textarea --- */
+        /* --- Inputs --- */
         label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-        
         textarea, input[type="text"], select {
-            width: 100%;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 1rem;
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            transition: border 0.3s;
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 1rem; color: white; font-size: 1rem; outline: none; transition: border 0.3s;
         }
-        
         textarea { height: 200px; resize: vertical; line-height: 1.5; }
         textarea:focus, input:focus, select:focus { border-color: var(--primary-blue); }
-        
-        /* Dropdown specific */
         select { appearance: none; cursor: pointer; }
         select option { background: #1a1b20; color: white; }
 
-        /* --- Suggestions & Buttons --- */
+        /* --- Links Dynamic --- */
+        .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .remove-link { 
+            background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3);
+            width: 45px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; cursor: pointer; font-size: 1.2rem;
+        }
+        .add-link-btn { width: 100%; margin-top: 5px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 50px; border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.85rem; }
+        .add-link-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* --- Chat Window --- */
+        .chat-container {
+            background: rgba(0, 0, 0, 0.3); border-radius: 12px; border: 1px solid var(--glass-border);
+            overflow: hidden; display: flex; flex-direction: column; height: 400px;
+        }
+        .chat-history { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 80%; padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .msg-ai { align-self: flex-start; background: var(--ai-msg-bg); border-bottom-left-radius: 2px; color: #ddd; }
+        .msg-user { align-self: flex-end; background: var(--primary-blue); border-bottom-right-radius: 2px; color: white; }
+        
+        .chat-input-area { padding: 10px; background: rgba(255,255,255,0.03); display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
+        .chat-input-area input { padding: 0.8rem; border-radius: 50px; flex: 1; }
+        .send-chat-btn {
+            width: 45px; height: 45px; border-radius: 50%; background: var(--primary-blue); color: white;
+            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .send-chat-btn:hover { transform: scale(1.1); }
+
+        /* --- Action & Suggestions --- */
         .suggestions { margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
         .pill-btn {
             background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
@@ -177,87 +147,7 @@
             cursor: pointer; font-size: 0.85rem; transition: all 0.3s;
         }
         .pill-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.3); }
-
-        /* --- Dynamic Links --- */
-        .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .remove-link { 
-            background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3);
-            width: 45px; display: flex; align-items: center; justify-content: center;
-            border-radius: 12px; cursor: pointer; font-size: 1.2rem;
-        }
-        .add-link-btn { width: 100%; margin-top: 5px; text-align: center; }
-
-        /* --- Chat Window --- */
-        .chat-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 400px;
-        }
-
-        .chat-history {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .msg-ai {
-            align-self: flex-start;
-            background: var(--ai-msg-bg);
-            border-bottom-left-radius: 2px;
-            color: #ddd;
-        }
-
-        .msg-user {
-            align-self: flex-end;
-            background: var(--primary-blue);
-            border-bottom-right-radius: 2px;
-            color: white;
-        }
-
-        .chat-input-area {
-            padding: 10px;
-            background: rgba(255,255,255,0.03);
-            display: flex;
-            gap: 10px;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        .chat-input-area input {
-            padding: 0.8rem;
-            border-radius: 50px;
-            flex: 1;
-        }
-
-        .send-chat-btn {
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.2s;
-        }
-        .send-chat-btn:hover { transform: scale(1.1); }
-
-        /* --- Global Save Button --- */
+        
         .action-container { margin-top: 1rem; display: flex; justify-content: flex-end; }
         .save-btn {
             background: var(--primary-blue); color: white; border: none; padding: 0.8rem 2rem;
@@ -266,7 +156,7 @@
         }
         .save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 99, 232, 0.5); }
 
-        /* --- Toast & Loader --- */
+        /* --- Overlays --- */
         #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         #toast.success { border-left: 4px solid var(--success); }
@@ -307,9 +197,7 @@
     </nav>
 
     <main>
-        
         <div id="dynamic-content-area"></div>
-
     </main>
 
     <div id="toast">Saved Successfully!</div>
@@ -339,8 +227,7 @@
             sales: "You are a persuasive and energetic Sales Agent. Your goal is to understand the customer's needs and recommend the perfect product."
         };
 
-        // --- 1. BUILD UI AUTOMATICALLY ---
-        // This generates the HTML for all 4 agents to ensure no section is missing
+        // --- 1. BUILD UI ---
         function buildInterface() {
             const container = document.getElementById('dynamic-content-area');
             
@@ -377,10 +264,9 @@
                         <div class="section-wrapper">
                             <div class="section-header" onclick="toggleSection('${agent.id}-links-sec')">Knowledge Base (Links)</div>
                             <div id="${agent.id}-links-sec" class="section-content">
-                                <label>External resources the agent can reference:</label>
-                                <div id="links-container-${agent.id}">
-                                    </div>
-                                <div class="pill-btn add-link-btn" onclick="addLinkField('${agent.id}')">+ Add Another Link</div>
+                                <label>External resources (comma separated in DB):</label>
+                                <div id="links-container-${agent.id}"></div>
+                                <div class="add-link-btn" onclick="addLinkField('${agent.id}')">+ Add Another Link</div>
                             </div>
                         </div>
 
@@ -409,50 +295,12 @@
             });
         }
 
-        // --- INIT ---
         window.onload = function() {
             buildInterface();
             fetchCurrentConfigurations();
         };
 
-        // --- UI LOGIC ---
-        function switchTab(agentName, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById(agentName).classList.add('active');
-            if(element) element.classList.add('active');
-            if (document.getElementById('navLinks').classList.contains('open')) toggleMenu();
-        }
-
-        function toggleMenu() {
-            document.getElementById('navLinks').classList.toggle('open');
-        }
-
-        function toggleSection(sectionId, isChat = false, agentId = null) {
-            const section = document.getElementById(sectionId);
-            const header = section.previousElementSibling;
-            
-            // Toggle current
-            const isOpen = section.classList.contains('open');
-            if(isOpen) {
-                section.classList.remove('open');
-                header.classList.remove('active');
-            } else {
-                section.classList.add('open');
-                header.classList.add('active');
-                
-                // If opening chat, load history
-                if(isChat && agentId) {
-                    loadChatHistory(agentId);
-                }
-            }
-        }
-
-        function handleEnter(e, agentId) {
-            if(e.key === 'Enter') sendChatMessage(agentId);
-        }
-
-        // --- LINK LOGIC ---
+        // --- 2. LINK LOGIC (Split & Join) ---
         function addLinkField(agentId, value = "") {
             const container = document.getElementById(`links-container-${agentId}`);
             const div = document.createElement('div');
@@ -464,12 +312,16 @@
             container.appendChild(div);
         }
 
-        function getLinks(agentId) {
+        function getLinksAsCommaString(agentId) {
             const inputs = document.querySelectorAll(`#links-container-${agentId} .link-input`);
-            return Array.from(inputs).map(input => input.value).filter(val => val.trim() !== "");
+            // Filter empty, join by comma
+            return Array.from(inputs)
+                .map(input => input.value.trim())
+                .filter(val => val !== "")
+                .join(', ');
         }
 
-        // --- DATA LOGIC (GET) ---
+        // --- 3. DATA FETCHING (GET) ---
         async function fetchCurrentConfigurations() {
             const loader = document.getElementById('loader-overlay');
             try {
@@ -478,18 +330,19 @@
                     const data = await response.json();
                     
                     AGENTS.forEach(agent => {
-                        // 1. Prompt
+                        // A. System Prompt (column: system_prompt_whatsapp)
                         const promptVal = data[`system_prompt_${agent.id}`];
                         if(promptVal) document.getElementById(`prompt-${agent.id}`).value = promptVal;
                         
-                        // 2. Tone
-                        const toneVal = data[`agent_tone_${agent.id}`]; // Assuming DB key format
+                        // B. Agent Tone (column: agent_tone_whatsapp)
+                        const toneVal = data[`agent_tone_${agent.id}`];
                         if(toneVal) document.getElementById(`tone-${agent.id}`).value = toneVal;
 
-                        // 3. Links (Assuming comma separated string or array from DB)
-                        const linksVal = data[`knowledge_urls_${agent.id}`];
+                        // C. Links (column: links_whatsapp)
+                        const linksVal = data[`links_${agent.id}`];
                         if(linksVal) {
-                            const linksArray = Array.isArray(linksVal) ? linksVal : linksVal.split(',');
+                            // Split string "link1, link2" back into array
+                            const linksArray = linksVal.split(',');
                             linksArray.forEach(link => addLinkField(agent.id, link.trim()));
                         } else {
                             addLinkField(agent.id); // Add one empty by default
@@ -498,7 +351,6 @@
                 }
             } catch (error) {
                 console.error("Fetch error", error);
-                // On error, just add empty link fields
                 AGENTS.forEach(a => addLinkField(a.id));
             } finally {
                 loader.style.opacity = '0';
@@ -506,24 +358,33 @@
             }
         }
 
-        // --- SAVE LOGIC (POST Config) ---
+        // --- 4. DATA SAVING (POST) ---
         async function saveRole(agentId) {
             const prompt = document.getElementById(`prompt-${agentId}`).value;
             const tone = document.getElementById(`tone-${agentId}`).value;
-            const links = getLinks(agentId);
-            const btn = document.querySelector(`#${agentId} .save-btn`);
+            const linksString = getLinksAsCommaString(agentId); // Get as "url1, url2"
             
+            const btn = document.querySelector(`#${agentId} .save-btn`);
             const originalText = btn.innerText;
             btn.innerText = "Saving...";
             
             try {
+                // ⚠️ DYNAMIC KEYS: This sends the EXACT keys you requested
+                // Example Payload: { "agent_source": "whatsapp", "system_prompt": "...", "agent_tone_whatsapp": "...", "links_whatsapp": "..." }
+                
                 const payload = {
                     agent_source: agentId,
-                    system_prompt: prompt,
-                    agent_tone: tone,
-                    knowledge_urls: links,
+                    system_prompt: prompt, // Usually the "Update Row" logic uses this generic key + agent_source to find the column, OR we can send specific key:
                     timestamp: new Date().toISOString()
                 };
+
+                // Add specific keys to payload for easy mapping in n8n
+                payload[`agent_tone_${agentId}`] = tone;
+                payload[`links_${agentId}`] = linksString;
+                
+                // Also sending generic 'system_prompt' for your existing logic, 
+                // but if you want specific keys for prompt too, we can add:
+                // payload[`system_prompt_${agentId}`] = prompt; 
 
                 await fetch(CONFIG_WEBHOOK, {
                     method: 'POST',
@@ -533,53 +394,72 @@
                 
                 showToast("Saved Successfully!", "success");
             } catch(e) {
+                console.error(e);
                 showToast("Error saving data", "error");
             } finally {
                 btn.innerText = originalText;
             }
         }
 
-        // --- CHAT LOGIC ---
-        
-        // 1. Fetch History
-        async function loadChatHistory(agentId) {
-            const historyContainer = document.getElementById(`chat-history-${agentId}`);
-            // Prevent spamming fetch if already loaded recently? (Optional optimization)
-            
-            try {
-                // We send a GET request with param or a POST with action flag
-                // Using URL params for GET as per standard
-                const url = `${CHAT_WEBHOOK}?agent_source=${agentId}&action=get_history`;
-                
-                const response = await fetch(url);
-                if(response.ok) {
-                    const data = await response.json();
-                    // Assuming data.messages is array of { sender: 'user'|'ai', text: '...' }
-                    if(data.messages && Array.isArray(data.messages)) {
-                        historyContainer.innerHTML = ''; // Clear default welcome
-                        data.messages.forEach(msg => {
-                            appendMessage(agentId, msg.sender, msg.text);
-                        });
-                        scrollToBottom(agentId);
-                    }
-                }
-            } catch(e) {
-                console.log("No history found or error fetching history");
+        // --- 5. CHAT & UI UTILS ---
+        function switchTab(agentName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(agentName).classList.add('active');
+            if(element) element.classList.add('active');
+            if (document.getElementById('navLinks').classList.contains('open')) toggleMenu();
+        }
+
+        function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+
+        function toggleSection(sectionId, isChat = false, agentId = null) {
+            const section = document.getElementById(sectionId);
+            const header = section.previousElementSibling;
+            const isOpen = section.classList.contains('open');
+            if(isOpen) {
+                section.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                section.classList.add('open');
+                header.classList.add('active');
+                if(isChat && agentId) loadChatHistory(agentId);
             }
         }
 
-        // 2. Send Message
+        function handleEnter(e, agentId) { if(e.key === 'Enter') sendChatMessage(agentId); }
+        function applySuggestion(agentId, type) { document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type]; }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.className = type; t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function loadChatHistory(agentId) {
+            const historyContainer = document.getElementById(`chat-history-${agentId}`);
+            try {
+                const url = `${CHAT_WEBHOOK}?agent_source=${agentId}&action=get_history`;
+                const response = await fetch(url);
+                if(response.ok) {
+                    const data = await response.json();
+                    if(data.messages && Array.isArray(data.messages)) {
+                        historyContainer.innerHTML = ''; 
+                        data.messages.forEach(msg => appendMessage(agentId, msg.sender, msg.text));
+                        scrollToBottom(agentId);
+                    }
+                }
+            } catch(e) { console.log("History error", e); }
+        }
+
         async function sendChatMessage(agentId) {
             const input = document.getElementById(`chat-input-${agentId}`);
             const text = input.value.trim();
             if(!text) return;
 
-            // UI: Show user message immediately
             appendMessage(agentId, 'user', text);
             input.value = '';
             scrollToBottom(agentId);
 
-            // UI: Show loading bubble
             const loadingId = `loading-${Date.now()}`;
             appendMessage(agentId, 'ai', '<span style="animation:pulse 1s infinite">...</span>', loadingId);
 
@@ -593,17 +473,10 @@
                         timestamp: new Date().toISOString()
                     })
                 });
-
                 const data = await response.json();
-                
-                // Remove loading, show real reply
                 document.getElementById(loadingId).remove();
-                
-                // Expecting { reply: "..." } from webhook
-                const replyText = data.reply || data.output || "No reply received.";
-                appendMessage(agentId, 'ai', replyText);
+                appendMessage(agentId, 'ai', data.reply || data.output || "No reply received.");
                 scrollToBottom(agentId);
-
             } catch(e) {
                 document.getElementById(loadingId).remove();
                 appendMessage(agentId, 'ai', 'Error: Could not reach agent.');
@@ -622,16 +495,6 @@
         function scrollToBottom(agentId) {
             const container = document.getElementById(`chat-history-${agentId}`);
             container.scrollTop = container.scrollHeight;
-        }
-
-        function applySuggestion(agentId, type) {
-            document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type];
-        }
-
-        function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.className = type; t.innerText = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
         }
     </script>
 </body>
