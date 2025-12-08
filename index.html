@@ -103,6 +103,7 @@
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
+            position: relative; /* For loader positioning */
         }
 
         .tab-content {
@@ -252,6 +253,40 @@
         #toast.success { border-left: 4px solid var(--success); }
         #toast.error { border-left: 4px solid var(--error); }
 
+        /* --- Loading Spinner --- */
+        #loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 16, 20, 0.85); /* Dark semi-transparent */
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .loading-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* --- Mobile Responsive --- */
         @media (max-width: 768px) {
             .nav-links {
@@ -288,6 +323,11 @@
     </style>
 </head>
 <body>
+
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Fetching Agent Configurations...</div>
+    </div>
 
     <nav class="glass">
         <div class="logo">DIGITIVIA<span style="color:white"> AGENTCONTROLLER</span></div>
@@ -385,32 +425,81 @@
             sales: "You are a persuasive and energetic Sales Agent. Your goal is to understand the customer's needs and recommend the perfect product. Focus on benefits over features. Be friendly, keep responses concise, and always end with a call to action or a question to keep the conversation going."
         };
 
-        // --- INIT (Load from Storage) ---
+        // --- INIT (Fetch & Load) ---
         window.onload = function() {
-            // Added website to loader
+            fetchCurrentPrompts();
+        };
+
+        // --- FETCH LOGIC (GET) ---
+        async function fetchCurrentPrompts() {
+            const loader = document.getElementById('loader-overlay');
+            
+            try {
+                // Perform GET request
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Map the specific keys from your DB to the inputs
+                    // Keys: system_prompt_website, system_prompt_whatsAPP, etc.
+                    
+                    if(data.system_prompt_website) 
+                        updateField('website', data.system_prompt_website);
+                        
+                    if(data.system_prompt_whatsAPP) 
+                        updateField('whatsapp', data.system_prompt_whatsAPP);
+                        
+                    if(data.system_prompt_messenger) 
+                        updateField('messenger', data.system_prompt_messenger);
+                        
+                    if(data.system_prompt_instagram) 
+                        updateField('instagram', data.system_prompt_instagram);
+
+                } else {
+                    console.warn("Fetch failed, using local storage/placeholders");
+                    loadFromStorageBackup();
+                }
+            } catch (error) {
+                console.error("Error fetching prompts:", error);
+                showToast("Could not sync with Database", "error");
+                loadFromStorageBackup(); // Fallback to local storage if API fails
+            } finally {
+                // Hide loader with a smooth fade out
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
+            }
+        }
+
+        // Helper to update field and save to local storage for persistence
+        function updateField(agent, text) {
+            if(!text) return; // If null/empty from DB, keep placeholder
+            const field = document.getElementById(`prompt-${agent}`);
+            if(field) {
+                field.value = text;
+                localStorage.setItem(`agent_prompt_${agent}`, text);
+            }
+        }
+
+        // Fallback: If API fails, try to load what we have in browser memory
+        function loadFromStorageBackup() {
             loadFromStorage('website');
             loadFromStorage('whatsapp');
             loadFromStorage('messenger');
             loadFromStorage('instagram');
-        };
+        }
 
         // --- NAVIGATION LOGIC ---
         function switchTab(agentName, element) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            // Remove active class from nav items
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
-            // Show selected tab
             document.getElementById(agentName).classList.add('active');
-            // Highlight nav item
             if(element) element.classList.add('active');
-
-            // Close mobile menu if open
             const navLinks = document.getElementById('navLinks');
-            if (navLinks.classList.contains('open')) {
-                toggleMenu();
-            }
+            if (navLinks.classList.contains('open')) toggleMenu();
         }
 
         function toggleMenu() {
@@ -421,46 +510,35 @@
         }
 
         // --- CORE LOGIC ---
-        
-        // 1. Apply Suggestion
         function applySuggestion(agent, type) {
             const textarea = document.getElementById(`prompt-${agent}`);
             textarea.value = templates[type];
-            // Trigger auto-save to local storage
             localStorage.setItem(`agent_prompt_${agent}`, templates[type]);
         }
 
-        // 2. Load Data on Refresh
         function loadFromStorage(agent) {
             const savedData = localStorage.getItem(`agent_prompt_${agent}`);
-            if (savedData) {
-                document.getElementById(`prompt-${agent}`).value = savedData;
-            }
-            
-            // Add listener to save on typing
+            if (savedData) document.getElementById(`prompt-${agent}`).value = savedData;
             document.getElementById(`prompt-${agent}`).addEventListener('input', function(e) {
                 localStorage.setItem(`agent_prompt_${agent}`, e.target.value);
             });
         }
 
-        // 3. Save Role (Webhook)
+        // 3. Save Role (Webhook POST)
         async function saveRole(agent) {
             const promptText = document.getElementById(`prompt-${agent}`).value;
             const btn = document.querySelector(`#${agent} .save-btn`);
             const originalText = btn.innerHTML;
 
-            // UI Feedback: Loading
             btn.innerHTML = "Sending...";
             btn.style.opacity = "0.7";
 
             try {
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        agent_source: agent, // 'website', 'whatsapp', 'messenger', or 'instagram'
+                        agent_source: agent, 
                         system_prompt: promptText,
                         timestamp: new Date().toISOString()
                     })
@@ -468,14 +546,15 @@
 
                 if (response.ok) {
                     showToast("Role saved successfully!", "success");
+                    // Update Local Storage on success to keep them in sync
+                    localStorage.setItem(`agent_prompt_${agent}`, promptText);
                 } else {
                     throw new Error("Webhook failed");
                 }
             } catch (error) {
                 console.error(error);
-                showToast("Error saving role. Check console.", "error");
+                showToast("Error saving role.", "error");
             } finally {
-                // UI Feedback: Reset
                 btn.innerHTML = originalText;
                 btn.style.opacity = "1";
             }
@@ -484,7 +563,7 @@
         // --- UTILS ---
         function showToast(message, type) {
             const toast = document.getElementById("toast");
-            toast.className = type; // success or error
+            toast.className = type; 
             toast.innerText = message;
             toast.classList.add("show");
             setTimeout(function(){ toast.classList.remove("show"); }, 3000);
