@@ -8,13 +8,15 @@
         :root {
             /* User Defined Palette */
             --primary-blue: #4363E8;
-            --glass-bg: rgba(93, 93, 91, 0.25); /* Based on #5D5D5B */
+            --glass-bg: rgba(93, 93, 91, 0.25);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --bg-dark: #0f1014; /* Deep dark background to make glass pop */
+            --bg-dark: #0f1014;
             --text-main: #ffffff;
             --text-muted: #a0a0a0;
             --success: #2ecc71;
             --error: #e74c3c;
+            --user-msg-bg: #4363E8;
+            --ai-msg-bg: #2d2d2d;
         }
 
         * {
@@ -89,12 +91,8 @@
             box-shadow: 0 0 15px rgba(67, 99, 232, 0.4);
         }
 
-        /* Mobile Menu Button */
-        .hamburger {
-            display: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-        }
+        /* Mobile Menu */
+        .hamburger { display: none; cursor: pointer; font-size: 1.5rem; }
 
         /* --- Main Content --- */
         main {
@@ -103,222 +101,190 @@
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
-            position: relative; /* For loader positioning */
         }
 
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tab-content.active {
-            display: block;
-        }
+        .card { border-radius: 20px; padding: 2rem; }
+        h2 { margin-bottom: 1.5rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .icon-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--primary-blue); display: inline-block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            border-radius: 20px;
-            padding: 2rem;
-        }
-
-        h2 {
+        /* --- Accordion Styles --- */
+        .section-wrapper {
             margin-bottom: 1.5rem;
-            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 1.5rem;
+        }
+        
+        .section-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+        
+        .section-header:hover { color: var(--primary-blue); }
+        .section-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.3s; }
+        .section-header.active::after { transform: rotate(180deg); }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease;
+            opacity: 0;
         }
 
-        .icon-circle {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--primary-blue);
-            display: inline-block;
+        .section-content.open {
+            max-height: 1000px; /* Large enough to fit content */
+            opacity: 1;
+            margin-top: 1rem;
         }
 
-        /* --- Inputs & Buttons --- */
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        textarea {
+        /* --- Inputs & Textarea --- */
+        label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        
+        textarea, input[type="text"], select {
             width: 100%;
-            height: 250px;
             background: rgba(0,0,0,0.2);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             padding: 1rem;
             color: white;
             font-size: 1rem;
-            resize: vertical;
             outline: none;
             transition: border 0.3s;
-            line-height: 1.5;
         }
+        
+        textarea { height: 200px; resize: vertical; line-height: 1.5; }
+        textarea:focus, input:focus, select:focus { border-color: var(--primary-blue); }
+        
+        /* Dropdown specific */
+        select { appearance: none; cursor: pointer; }
+        select option { background: #1a1b20; color: white; }
 
-        textarea:focus {
-            border-color: var(--primary-blue);
-        }
-
-        .suggestions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
-
+        /* --- Suggestions & Buttons --- */
+        .suggestions { margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
         .pill-btn {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px;
+            cursor: pointer; font-size: 0.85rem; transition: all 0.3s;
+        }
+        .pill-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.3); }
+
+        /* --- Dynamic Links --- */
+        .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .remove-link { 
+            background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3);
+            width: 45px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; cursor: pointer; font-size: 1.2rem;
+        }
+        .add-link-btn { width: 100%; margin-top: 5px; text-align: center; }
+
+        /* --- Chat Window --- */
+        .chat-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-
-        .pill-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-color: rgba(255,255,255,0.3);
-        }
-
-        .action-container {
-            margin-top: 2rem;
+            overflow: hidden;
             display: flex;
-            justify-content: flex-end;
+            flex-direction: column;
+            height: 400px;
         }
 
-        .save-btn {
+        .chat-history {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .msg-ai {
+            align-self: flex-start;
+            background: var(--ai-msg-bg);
+            border-bottom-left-radius: 2px;
+            color: #ddd;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: var(--primary-blue);
+            border-bottom-right-radius: 2px;
+            color: white;
+        }
+
+        .chat-input-area {
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .chat-input-area input {
+            padding: 0.8rem;
+            border-radius: 50px;
+            flex: 1;
+        }
+
+        .send-chat-btn {
+            width: 45px; height: 45px;
+            border-radius: 50%;
             background: var(--primary-blue);
             color: white;
             border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(67, 99, 232, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
         }
+        .send-chat-btn:hover { transform: scale(1.1); }
 
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(67, 99, 232, 0.5);
+        /* --- Global Save Button --- */
+        .action-container { margin-top: 1rem; display: flex; justify-content: flex-end; }
+        .save-btn {
+            background: var(--primary-blue); color: white; border: none; padding: 0.8rem 2rem;
+            border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(67, 99, 232, 0.3); transition: transform 0.2s, box-shadow 0.2s;
         }
+        .save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 99, 232, 0.5); }
 
-        .save-btn:active {
-            transform: translateY(0);
-        }
-
-        /* --- Toast Notification --- */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            opacity: 0;
-            transition: opacity 0.3s, bottom 0.3s;
-        }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
-
+        /* --- Toast & Loader --- */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         #toast.success { border-left: 4px solid var(--success); }
         #toast.error { border-left: 4px solid var(--error); }
 
-        /* --- Loading Spinner --- */
-        #loader-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 16, 20, 0.85); /* Dark semi-transparent */
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 15px;
-            transition: opacity 0.5s ease;
-        }
+        #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 16, 20, 0.85); backdrop-filter: blur(5px); z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 15px; transition: opacity 0.5s ease; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: var(--primary-blue); animation: spin 1s ease-in-out infinite; }
+        .loading-text { font-size: 0.9rem; color: var(--text-muted); }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-radius: 50%;
-            border-top-color: var(--primary-blue);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        .loading-text {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* --- Mobile Responsive --- */
+        /* Mobile */
         @media (max-width: 768px) {
-            .nav-links {
-                position: absolute;
-                top: 60px;
-                left: 0;
-                width: 100%;
-                background: #1a1b20;
-                flex-direction: column;
-                gap: 0;
-                border-bottom: 1px solid var(--glass-border);
-                display: none;
-            }
-
-            .nav-links.open {
-                display: flex;
-            }
-
-            .nav-item {
-                border-radius: 0;
-                padding: 1.5rem;
-                text-align: center;
-                border-bottom: 1px solid rgba(255,255,255,0.03);
-            }
-
-            .hamburger {
-                display: block;
-            }
-
-            main {
-                padding: 5rem 1rem;
-            }
+            .nav-links { position: absolute; top: 60px; left: 0; width: 100%; background: #1a1b20; flex-direction: column; display: none; }
+            .nav-links.open { display: flex; }
+            .nav-item { border-radius: 0; padding: 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); }
+            .hamburger { display: block; }
+            main { padding: 5rem 1rem; }
+            .section-content.open { max-height: 1500px; }
         }
     </style>
 </head>
@@ -342,73 +308,7 @@
 
     <main>
         
-        <div id="website" class="tab-content active">
-            <div class="card glass">
-                <h2><span class="icon-circle" style="background: #00E5FF;"></span> Website Agent</h2>
-                <label>Agent role (System prompt)</label>
-                <textarea id="prompt-website" placeholder="Define how your website agent should behave..."></textarea>
-                
-                <div class="suggestions">
-                    <button class="pill-btn" onclick="applySuggestion('website', 'customer_service')">✨ Customer Service</button>
-                    <button class="pill-btn" onclick="applySuggestion('website', 'sales')">🚀 Sales Agent</button>
-                </div>
-
-                <div class="action-container">
-                    <button class="save-btn" onclick="saveRole('website')">Save Role</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="whatsapp" class="tab-content">
-            <div class="card glass">
-                <h2><span class="icon-circle"></span> WhatsApp Agent</h2>
-                <label>Agent role (System prompt)</label>
-                <textarea id="prompt-whatsapp" placeholder="Define how your agent should behave..."></textarea>
-                
-                <div class="suggestions">
-                    <button class="pill-btn" onclick="applySuggestion('whatsapp', 'customer_service')">✨ Customer Service</button>
-                    <button class="pill-btn" onclick="applySuggestion('whatsapp', 'sales')">🚀 Sales Agent</button>
-                </div>
-
-                <div class="action-container">
-                    <button class="save-btn" onclick="saveRole('whatsapp')">Save Role</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="messenger" class="tab-content">
-            <div class="card glass">
-                <h2><span class="icon-circle" style="background: #a960ee;"></span> Messenger Agent</h2>
-                <label>Agent role (System prompt)</label>
-                <textarea id="prompt-messenger" placeholder="Define how your agent should behave..."></textarea>
-                
-                <div class="suggestions">
-                    <button class="pill-btn" onclick="applySuggestion('messenger', 'customer_service')">✨ Customer Service</button>
-                    <button class="pill-btn" onclick="applySuggestion('messenger', 'sales')">🚀 Sales Agent</button>
-                </div>
-
-                <div class="action-container">
-                    <button class="save-btn" onclick="saveRole('messenger')">Save Role</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="instagram" class="tab-content">
-            <div class="card glass">
-                <h2><span class="icon-circle" style="background: #e1306c;"></span> Instagram Agent</h2>
-                <label>Agent role (System prompt)</label>
-                <textarea id="prompt-instagram" placeholder="Define how your agent should behave..."></textarea>
-                
-                <div class="suggestions">
-                    <button class="pill-btn" onclick="applySuggestion('instagram', 'customer_service')">✨ Customer Service</button>
-                    <button class="pill-btn" onclick="applySuggestion('instagram', 'sales')">🚀 Sales Agent</button>
-                </div>
-
-                <div class="action-container">
-                    <button class="save-btn" onclick="saveRole('instagram')">Save Role</button>
-                </div>
-            </div>
-        </div>
+        <div id="dynamic-content-area"></div>
 
     </main>
 
@@ -416,157 +316,322 @@
 
     <script>
         // --- CONFIGURATION ---
-        // 🔴 PASTE YOUR N8N WEBHOOK URL HERE 🔴
-        const WEBHOOK_URL = "https://n8n.srv1174105.hstgr.cloud/webhook/promptAgent"; 
+        const CONFIG_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/promptAgent";
+        const CHAT_WEBHOOK   = "https://n8n.srv1174105.hstgr.cloud/webhook/chatHandler";
 
-        // --- PRE-DEFINED PROMPTS ---
-        const templates = {
-            customer_service: "You are an empathetic and efficient Customer Service Agent. Your goal is to resolve user issues with patience and clarity. Always prioritize the user's satisfaction, use polite language, and provide step-by-step solutions. If you don't know an answer, admit it and offer to escalate to a human.",
-            sales: "You are a persuasive and energetic Sales Agent. Your goal is to understand the customer's needs and recommend the perfect product. Focus on benefits over features. Be friendly, keep responses concise, and always end with a call to action or a question to keep the conversation going."
+        const AGENTS = [
+            { id: 'website', name: 'Website Agent', color: '#00E5FF' },
+            { id: 'whatsapp', name: 'WhatsApp Agent', color: '#4363E8' },
+            { id: 'messenger', name: 'Messenger Agent', color: '#a960ee' },
+            { id: 'instagram', name: 'Instagram Agent', color: '#e1306c' }
+        ];
+
+        const TONE_OPTIONS = [
+            "Professional & Formal",
+            "Friendly & Casual",
+            "Empathetic & Helpful",
+            "Sales-Oriented & Persuasive",
+            "Witty & Humorous"
+        ];
+
+        const PROMPT_TEMPLATES = {
+            customer_service: "You are an empathetic and efficient Customer Service Agent. Your goal is to resolve user issues with patience.",
+            sales: "You are a persuasive and energetic Sales Agent. Your goal is to understand the customer's needs and recommend the perfect product."
         };
 
-        // --- INIT (Fetch & Load) ---
-        window.onload = function() {
-            fetchCurrentPrompts();
-        };
-
-        // --- FETCH LOGIC (GET) ---
-        async function fetchCurrentPrompts() {
-            const loader = document.getElementById('loader-overlay');
+        // --- 1. BUILD UI AUTOMATICALLY ---
+        // This generates the HTML for all 4 agents to ensure no section is missing
+        function buildInterface() {
+            const container = document.getElementById('dynamic-content-area');
             
-            try {
-                // Perform GET request
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+            AGENTS.forEach((agent, index) => {
+                const isActive = index === 0 ? 'active' : '';
+                
+                const html = `
+                <div id="${agent.id}" class="tab-content ${isActive}">
+                    <div class="card glass">
+                        <h2><span class="icon-circle" style="background: ${agent.color};"></span> ${agent.name}</h2>
+                        
+                        <div class="section-wrapper">
+                            <div class="section-header active" onclick="toggleSection('${agent.id}-prompt-sec')">Agent Role (System Prompt)</div>
+                            <div id="${agent.id}-prompt-sec" class="section-content open">
+                                <textarea id="prompt-${agent.id}" placeholder="Define how your agent should behave..."></textarea>
+                                <div class="suggestions">
+                                    <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'customer_service')">✨ Customer Service</button>
+                                    <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'sales')">🚀 Sales Agent</button>
+                                </div>
+                            </div>
+                        </div>
 
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Map the specific keys from your DB to the inputs
-                    // Keys: system_prompt_website, system_prompt_whatsAPP, etc.
-                    
-                    if(data.system_prompt_website) 
-                        updateField('website', data.system_prompt_website);
-                        
-                    if(data.system_prompt_whatsAPP) 
-                        updateField('whatsapp', data.system_prompt_whatsAPP);
-                        
-                    if(data.system_prompt_messenger) 
-                        updateField('messenger', data.system_prompt_messenger);
-                        
-                    if(data.system_prompt_instagram) 
-                        updateField('instagram', data.system_prompt_instagram);
+                        <div class="section-wrapper">
+                            <div class="section-header" onclick="toggleSection('${agent.id}-tone-sec')">Agent Tone</div>
+                            <div id="${agent.id}-tone-sec" class="section-content">
+                                <label>Select the personality style:</label>
+                                <select id="tone-${agent.id}">
+                                    <option value="" disabled selected>Select a tone...</option>
+                                    ${TONE_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
 
-                } else {
-                    console.warn("Fetch failed, using local storage/placeholders");
-                    loadFromStorageBackup();
-                }
-            } catch (error) {
-                console.error("Error fetching prompts:", error);
-                showToast("Could not sync with Database", "error");
-                loadFromStorageBackup(); // Fallback to local storage if API fails
-            } finally {
-                // Hide loader with a smooth fade out
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 500);
-            }
+                        <div class="section-wrapper">
+                            <div class="section-header" onclick="toggleSection('${agent.id}-links-sec')">Knowledge Base (Links)</div>
+                            <div id="${agent.id}-links-sec" class="section-content">
+                                <label>External resources the agent can reference:</label>
+                                <div id="links-container-${agent.id}">
+                                    </div>
+                                <div class="pill-btn add-link-btn" onclick="addLinkField('${agent.id}')">+ Add Another Link</div>
+                            </div>
+                        </div>
+
+                        <div class="section-wrapper">
+                            <div class="section-header" onclick="toggleSection('${agent.id}-chat-sec', true, '${agent.id}')">Test Chat Window</div>
+                            <div id="${agent.id}-chat-sec" class="section-content">
+                                <div class="chat-container">
+                                    <div id="chat-history-${agent.id}" class="chat-history">
+                                        <div class="message msg-ai">Hello! I am the ${agent.name}. How can I help?</div>
+                                    </div>
+                                    <div class="chat-input-area">
+                                        <input type="text" id="chat-input-${agent.id}" placeholder="Type a message..." onkeypress="handleEnter(event, '${agent.id}')">
+                                        <button class="send-chat-btn" onclick="sendChatMessage('${agent.id}')">➤</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-container">
+                            <button class="save-btn" onclick="saveRole('${agent.id}')">Save Role</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += html;
+            });
         }
 
-        // Helper to update field and save to local storage for persistence
-        function updateField(agent, text) {
-            if(!text) return; // If null/empty from DB, keep placeholder
-            const field = document.getElementById(`prompt-${agent}`);
-            if(field) {
-                field.value = text;
-                localStorage.setItem(`agent_prompt_${agent}`, text);
-            }
-        }
+        // --- INIT ---
+        window.onload = function() {
+            buildInterface();
+            fetchCurrentConfigurations();
+        };
 
-        // Fallback: If API fails, try to load what we have in browser memory
-        function loadFromStorageBackup() {
-            loadFromStorage('website');
-            loadFromStorage('whatsapp');
-            loadFromStorage('messenger');
-            loadFromStorage('instagram');
-        }
-
-        // --- NAVIGATION LOGIC ---
+        // --- UI LOGIC ---
         function switchTab(agentName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById(agentName).classList.add('active');
             if(element) element.classList.add('active');
-            const navLinks = document.getElementById('navLinks');
-            if (navLinks.classList.contains('open')) toggleMenu();
+            if (document.getElementById('navLinks').classList.contains('open')) toggleMenu();
         }
 
         function toggleMenu() {
-            const navLinks = document.getElementById('navLinks');
-            const hamburger = document.querySelector('.hamburger');
-            navLinks.classList.toggle('open');
-            hamburger.innerHTML = navLinks.classList.contains('open') ? '✕' : '☰';
+            document.getElementById('navLinks').classList.toggle('open');
         }
 
-        // --- CORE LOGIC ---
-        function applySuggestion(agent, type) {
-            const textarea = document.getElementById(`prompt-${agent}`);
-            textarea.value = templates[type];
-            localStorage.setItem(`agent_prompt_${agent}`, templates[type]);
+        function toggleSection(sectionId, isChat = false, agentId = null) {
+            const section = document.getElementById(sectionId);
+            const header = section.previousElementSibling;
+            
+            // Toggle current
+            const isOpen = section.classList.contains('open');
+            if(isOpen) {
+                section.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                section.classList.add('open');
+                header.classList.add('active');
+                
+                // If opening chat, load history
+                if(isChat && agentId) {
+                    loadChatHistory(agentId);
+                }
+            }
         }
 
-        function loadFromStorage(agent) {
-            const savedData = localStorage.getItem(`agent_prompt_${agent}`);
-            if (savedData) document.getElementById(`prompt-${agent}`).value = savedData;
-            document.getElementById(`prompt-${agent}`).addEventListener('input', function(e) {
-                localStorage.setItem(`agent_prompt_${agent}`, e.target.value);
-            });
+        function handleEnter(e, agentId) {
+            if(e.key === 'Enter') sendChatMessage(agentId);
         }
 
-        // 3. Save Role (Webhook POST)
-        async function saveRole(agent) {
-            const promptText = document.getElementById(`prompt-${agent}`).value;
-            const btn = document.querySelector(`#${agent} .save-btn`);
-            const originalText = btn.innerHTML;
+        // --- LINK LOGIC ---
+        function addLinkField(agentId, value = "") {
+            const container = document.getElementById(`links-container-${agentId}`);
+            const div = document.createElement('div');
+            div.className = 'link-row';
+            div.innerHTML = `
+                <input type="text" class="link-input" value="${value}" placeholder="https://...">
+                <div class="remove-link" onclick="this.parentElement.remove()">×</div>
+            `;
+            container.appendChild(div);
+        }
 
-            btn.innerHTML = "Sending...";
-            btn.style.opacity = "0.7";
+        function getLinks(agentId) {
+            const inputs = document.querySelectorAll(`#links-container-${agentId} .link-input`);
+            return Array.from(inputs).map(input => input.value).filter(val => val.trim() !== "");
+        }
+
+        // --- DATA LOGIC (GET) ---
+        async function fetchCurrentConfigurations() {
+            const loader = document.getElementById('loader-overlay');
+            try {
+                const response = await fetch(CONFIG_WEBHOOK, { method: 'GET' });
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    AGENTS.forEach(agent => {
+                        // 1. Prompt
+                        const promptVal = data[`system_prompt_${agent.id}`];
+                        if(promptVal) document.getElementById(`prompt-${agent.id}`).value = promptVal;
+                        
+                        // 2. Tone
+                        const toneVal = data[`agent_tone_${agent.id}`]; // Assuming DB key format
+                        if(toneVal) document.getElementById(`tone-${agent.id}`).value = toneVal;
+
+                        // 3. Links (Assuming comma separated string or array from DB)
+                        const linksVal = data[`knowledge_urls_${agent.id}`];
+                        if(linksVal) {
+                            const linksArray = Array.isArray(linksVal) ? linksVal : linksVal.split(',');
+                            linksArray.forEach(link => addLinkField(agent.id, link.trim()));
+                        } else {
+                            addLinkField(agent.id); // Add one empty by default
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Fetch error", error);
+                // On error, just add empty link fields
+                AGENTS.forEach(a => addLinkField(a.id));
+            } finally {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
+            }
+        }
+
+        // --- SAVE LOGIC (POST Config) ---
+        async function saveRole(agentId) {
+            const prompt = document.getElementById(`prompt-${agentId}`).value;
+            const tone = document.getElementById(`tone-${agentId}`).value;
+            const links = getLinks(agentId);
+            const btn = document.querySelector(`#${agentId} .save-btn`);
+            
+            const originalText = btn.innerText;
+            btn.innerText = "Saving...";
+            
+            try {
+                const payload = {
+                    agent_source: agentId,
+                    system_prompt: prompt,
+                    agent_tone: tone,
+                    knowledge_urls: links,
+                    timestamp: new Date().toISOString()
+                };
+
+                await fetch(CONFIG_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                showToast("Saved Successfully!", "success");
+            } catch(e) {
+                showToast("Error saving data", "error");
+            } finally {
+                btn.innerText = originalText;
+            }
+        }
+
+        // --- CHAT LOGIC ---
+        
+        // 1. Fetch History
+        async function loadChatHistory(agentId) {
+            const historyContainer = document.getElementById(`chat-history-${agentId}`);
+            // Prevent spamming fetch if already loaded recently? (Optional optimization)
+            
+            try {
+                // We send a GET request with param or a POST with action flag
+                // Using URL params for GET as per standard
+                const url = `${CHAT_WEBHOOK}?agent_source=${agentId}&action=get_history`;
+                
+                const response = await fetch(url);
+                if(response.ok) {
+                    const data = await response.json();
+                    // Assuming data.messages is array of { sender: 'user'|'ai', text: '...' }
+                    if(data.messages && Array.isArray(data.messages)) {
+                        historyContainer.innerHTML = ''; // Clear default welcome
+                        data.messages.forEach(msg => {
+                            appendMessage(agentId, msg.sender, msg.text);
+                        });
+                        scrollToBottom(agentId);
+                    }
+                }
+            } catch(e) {
+                console.log("No history found or error fetching history");
+            }
+        }
+
+        // 2. Send Message
+        async function sendChatMessage(agentId) {
+            const input = document.getElementById(`chat-input-${agentId}`);
+            const text = input.value.trim();
+            if(!text) return;
+
+            // UI: Show user message immediately
+            appendMessage(agentId, 'user', text);
+            input.value = '';
+            scrollToBottom(agentId);
+
+            // UI: Show loading bubble
+            const loadingId = `loading-${Date.now()}`;
+            appendMessage(agentId, 'ai', '<span style="animation:pulse 1s infinite">...</span>', loadingId);
 
             try {
-                const response = await fetch(WEBHOOK_URL, {
+                const response = await fetch(CHAT_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        agent_source: agent, 
-                        system_prompt: promptText,
+                        agent_source: agentId,
+                        message: text,
                         timestamp: new Date().toISOString()
                     })
                 });
 
-                if (response.ok) {
-                    showToast("Role saved successfully!", "success");
-                    // Update Local Storage on success to keep them in sync
-                    localStorage.setItem(`agent_prompt_${agent}`, promptText);
-                } else {
-                    throw new Error("Webhook failed");
-                }
-            } catch (error) {
-                console.error(error);
-                showToast("Error saving role.", "error");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.style.opacity = "1";
+                const data = await response.json();
+                
+                // Remove loading, show real reply
+                document.getElementById(loadingId).remove();
+                
+                // Expecting { reply: "..." } from webhook
+                const replyText = data.reply || data.output || "No reply received.";
+                appendMessage(agentId, 'ai', replyText);
+                scrollToBottom(agentId);
+
+            } catch(e) {
+                document.getElementById(loadingId).remove();
+                appendMessage(agentId, 'ai', 'Error: Could not reach agent.');
             }
         }
 
-        // --- UTILS ---
-        function showToast(message, type) {
-            const toast = document.getElementById("toast");
-            toast.className = type; 
-            toast.innerText = message;
-            toast.classList.add("show");
-            setTimeout(function(){ toast.classList.remove("show"); }, 3000);
+        function appendMessage(agentId, sender, text, id = null) {
+            const container = document.getElementById(`chat-history-${agentId}`);
+            const div = document.createElement('div');
+            div.className = `message ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+            div.innerHTML = text;
+            if(id) div.id = id;
+            container.appendChild(div);
+        }
+
+        function scrollToBottom(agentId) {
+            const container = document.getElementById(`chat-history-${agentId}`);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function applySuggestion(agentId, type) {
+            document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type];
+        }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.className = type; t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
     </script>
 </body>
