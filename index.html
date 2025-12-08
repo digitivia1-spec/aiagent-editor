@@ -293,7 +293,8 @@
         <div class="logo">DIGITIVIA<span style="color:white">AGENTCONTROLLER</span></div>
         <div class="hamburger" onclick="toggleMenu()">☰</div>
         <div class="nav-links" id="navLinks">
-            <div class="nav-item active" onclick="switchTab('whatsapp', this)">WhatsApp Agent</div>
+            <div class="nav-item active" onclick="switchTab('website', this)">Website Agent</div>
+            <div class="nav-item" onclick="switchTab('whatsapp', this)">WhatsApp Agent</div>
             <div class="nav-item" onclick="switchTab('messenger', this)">Messenger Agent</div>
             <div class="nav-item" onclick="switchTab('instagram', this)">Instagram Agent</div>
         </div>
@@ -301,7 +302,24 @@
 
     <main>
         
-        <div id="whatsapp" class="tab-content active">
+        <div id="website" class="tab-content active">
+            <div class="card glass">
+                <h2><span class="icon-circle" style="background: #00E5FF;"></span> Website Agent</h2>
+                <label>Agent role (System prompt)</label>
+                <textarea id="prompt-website" placeholder="Define how your website agent should behave..."></textarea>
+                
+                <div class="suggestions">
+                    <button class="pill-btn" onclick="applySuggestion('website', 'customer_service')">✨ Customer Service</button>
+                    <button class="pill-btn" onclick="applySuggestion('website', 'sales')">🚀 Sales Agent</button>
+                </div>
+
+                <div class="action-container">
+                    <button class="save-btn" onclick="saveRole('website')">Save Role</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="whatsapp" class="tab-content">
             <div class="card glass">
                 <h2><span class="icon-circle"></span> WhatsApp Agent</h2>
                 <label>Agent role (System prompt)</label>
@@ -369,6 +387,8 @@
 
         // --- INIT (Load from Storage) ---
         window.onload = function() {
+            // Added website to loader
+            loadFromStorage('website');
             loadFromStorage('whatsapp');
             loadFromStorage('messenger');
             loadFromStorage('instagram');
@@ -440,7 +460,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        agent_source: agent, // 'whatsapp', 'messenger', or 'instagram'
+                        agent_source: agent, // 'website', 'whatsapp', 'messenger', or 'instagram'
                         system_prompt: promptText,
                         timestamp: new Date().toISOString()
                     })
