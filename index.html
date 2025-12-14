@@ -6,8 +6,8 @@
     <title>AI Agent Command Center</title>
     <style>
         :root {
-            /* Dynamic Theme Colors */
-            --theme-color: #4363E8; /* Default Blue */
+            /* User Defined Palette */
+            --theme-color: #4363E8; 
             --glass-bg: rgba(93, 93, 91, 0.25);
             --glass-border: rgba(255, 255, 255, 0.1);
             --bg-dark: #0f1014;
@@ -28,7 +28,6 @@
 
         body {
             background-color: var(--bg-dark);
-            /* Dynamic background that changes with theme */
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, var(--theme-color) 0%, transparent 50%);
@@ -125,6 +124,9 @@
         .contact-item:hover, .contact-item.active { background: rgba(255,255,255,0.05); }
         .contact-item.active { border-left: 3px solid var(--theme-color); }
         .contact-avatar { width: 35px; height: 35px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+        .contact-info { margin-left: 10px; overflow: hidden; }
+        .contact-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem; }
+        .contact-id { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .inbox-header { padding: 15px; border-bottom: 1px solid var(--glass-border); font-weight: bold; background: rgba(0,0,0,0.1); }
 
@@ -336,8 +338,7 @@
                 const res = await fetch(`${HISTORY_WEBHOOK}?action=get_contacts&platform=${platform}`);
                 const data = await res.json();
                 
-                // Expecting { contacts: [{user_id: '123'}, {user_id: '456'}] }
-                // OR simple array [{user_id: '123'}]
+                // Expecting { contacts: [{user_id: '123', user_name: 'John'}, {user_id: '456'}] }
                 const contacts = data.contacts || data; 
 
                 list.innerHTML = '';
@@ -349,10 +350,17 @@
                 contacts.forEach(contact => {
                     const div = document.createElement('div');
                     div.className = 'contact-item';
-                    div.onclick = () => loadInboxMessages(platform, contact.user_id);
+                    div.onclick = () => loadInboxMessages(platform, contact.user_id, contact.user_name);
+                    
+                    const displayName = contact.user_name || contact.user_id; // Fallback to ID if no name
+                    const displayId = contact.user_name ? contact.user_id : ''; // Show ID small if name exists
+
                     div.innerHTML = `
-                        <div class="contact-avatar">👤</div>
-                        <div>${contact.user_id}</div>
+                        <div class="contact-avatar">${displayName.substring(0,2).toUpperCase()}</div>
+                        <div class="contact-info">
+                            <div class="contact-name">${displayName}</div>
+                            <div class="contact-id">${displayId}</div>
+                        </div>
                     `;
                     list.appendChild(div);
                 });
@@ -362,9 +370,10 @@
             }
         }
 
-        async function loadInboxMessages(platform, userId) {
+        async function loadInboxMessages(platform, userId, userName) {
             const container = document.getElementById('inbox-messages');
-            document.getElementById('inbox-header-title').innerText = `Chat with ${userId}`;
+            const displayName = userName || userId;
+            document.getElementById('inbox-header-title').innerText = `Chat with ${displayName}`;
             container.innerHTML = '<div style="padding:20px; text-align:center;">Loading history...</div>';
 
             try {
