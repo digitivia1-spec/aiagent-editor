@@ -6,8 +6,8 @@
     <title>AI Agent Command Center</title>
     <style>
         :root {
-            /* Default Theme (Website/Generic) */
-            --theme-color: #4363E8; 
+            /* Dynamic Theme Colors */
+            --theme-color: #4363E8; /* Default Blue */
             --glass-bg: rgba(93, 93, 91, 0.25);
             --glass-border: rgba(255, 255, 255, 0.1);
             --bg-dark: #0f1014;
@@ -15,14 +15,9 @@
             --text-muted: #a0a0a0;
             --success: #2ecc71;
             --error: #e74c3c;
-            --sidebar-width: 300px;
+            --user-msg-bg: var(--theme-color);
+            --ai-msg-bg: #2d2d2d;
         }
-
-        /* --- Theme Classes --- */
-        body.theme-whatsapp { --theme-color: #25D366; --bg-dark: #0b141a; }
-        body.theme-messenger { --theme-color: #0084FF; --bg-dark: #101010; }
-        body.theme-instagram { --theme-color: #E1306C; --bg-dark: #000000; }
-        body.theme-website { --theme-color: #00E5FF; --bg-dark: #0f1014; }
 
         * {
             box-sizing: border-box;
@@ -33,16 +28,15 @@
 
         body {
             background-color: var(--bg-dark);
-            /* Dynamic background gradient based on theme */
+            /* Dynamic background that changes with theme */
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, var(--theme-color) 10%, transparent 40%);
-            background-size: cover;
+                radial-gradient(circle at 90% 80%, var(--theme-color) 0%, transparent 50%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: background 0.5s ease;
+            transition: background-image 0.5s ease, --theme-color 0.5s ease;
         }
 
         /* --- Glassmorphism Utils --- */
@@ -59,32 +53,32 @@
             position: fixed; top: 0; width: 100%; z-index: 100;
             padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
         }
-        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; color: var(--theme-color); transition: color 0.5s; }
+        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; color: var(--theme-color); transition: color 0.3s; }
         .nav-links { display: flex; gap: 2rem; }
         .nav-item {
             cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;
             transition: all 0.3s ease; color: var(--text-muted); font-size: 0.9rem;
         }
         .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
-        .nav-item.active { background: var(--theme-color); color: white; box-shadow: 0 0 15px var(--theme-color); }
+        .nav-item.active { background: var(--theme-color); color: white; box-shadow: 0 0 15px var(--theme-color); transition: background 0.3s, box-shadow 0.3s; }
         .hamburger { display: none; cursor: pointer; font-size: 1.5rem; }
 
         /* --- Main Content --- */
-        main { flex: 1; padding: 6rem 1rem 2rem 1rem; max-width: 1200px; width: 100%; margin: 0 auto; }
-        
+        main { flex: 1; padding: 6rem 1rem 2rem 1rem; max-width: 1000px; width: 100%; margin: 0 auto; }
         .tab-content { display: none; animation: fadeIn 0.4s ease; width: 100%; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Standard Config Cards --- */
-        .config-wrapper { max-width: 800px; margin: 0 auto; }
         .card { border-radius: 20px; padding: 2rem; }
         h2 { margin-bottom: 1.5rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-        .icon-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--theme-color); display: inline-block; transition: background 0.5s; }
+        .icon-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--theme-color); display: inline-block; transition: background 0.3s; }
 
-        /* --- Accordion --- */
+        /* --- Accordion Styles --- */
         .section-wrapper { margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1.5rem; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 0.5rem 0; font-weight: 600; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            padding: 0.5rem 0; color: var(--text-main); font-weight: 600; font-size: 1rem; transition: color 0.3s;
+        }
         .section-header:hover { color: var(--theme-color); }
         .section-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.3s; }
         .section-header.active::after { transform: rotate(180deg); }
@@ -93,469 +87,470 @@
 
         /* --- Inputs --- */
         label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-        textarea, input[type="text"], select { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem; color: white; outline: none; transition: border 0.3s; }
-        textarea { height: 150px; resize: vertical; }
+        textarea, input[type="text"], select {
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 1rem; color: white; font-size: 1rem; outline: none; transition: border 0.3s;
+        }
+        textarea { height: 200px; resize: vertical; line-height: 1.5; }
         textarea:focus, input:focus, select:focus { border-color: var(--theme-color); }
-        select option { background: #1a1b20; }
+        select { appearance: none; cursor: pointer; }
+        select option { background: #1a1b20; color: white; }
 
-        /* --- Live Inbox UI --- */
-        .inbox-container {
-            display: flex;
-            height: 75vh;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-        }
+        /* --- Dynamic Links --- */
+        .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .remove-link { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3); width: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; cursor: pointer; font-size: 1.2rem; }
+        .add-link-btn { width: 100%; margin-top: 5px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 50px; border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.85rem; }
 
-        .inbox-sidebar {
-            width: var(--sidebar-width);
-            background: rgba(0,0,0,0.2);
-            border-right: 1px solid var(--glass-border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .platform-selector {
-            padding: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .platform-btn {
-            border: none;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-        }
-        .platform-btn:hover, .platform-btn.active { background: var(--theme-color); transform: scale(1.1); }
-
-        .contact-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0.5rem;
-        }
-
-        .contact-item {
-            padding: 1rem;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-bottom: 5px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .contact-item:hover { background: rgba(255,255,255,0.05); }
-        .contact-item.active { background: rgba(255,255,255,0.1); border-left: 3px solid var(--theme-color); }
-        .contact-avatar { width: 40px; height: 40px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .contact-info { flex: 1; overflow: hidden; }
-        .contact-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .contact-preview { font-size: 0.8rem; color: var(--text-muted); }
-
-        .inbox-chat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(0,0,0,0.1);
-        }
-
-        .chat-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--glass-border);
-            font-weight: bold;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .load-more-btn {
-            align-self: center;
-            background: none;
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            padding: 5px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-        }
-        .load-more-btn:hover { color: white; border-color: var(--theme-color); }
-
-        .chat-msg {
-            max-width: 70%;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-        .chat-msg.user { align-self: flex-start; background: #2d2d2d; border-bottom-left-radius: 2px; }
-        .chat-msg.ai { align-self: flex-end; background: var(--theme-color); color: white; border-bottom-right-radius: 2px; }
-
-        /* --- Action Buttons --- */
-        .save-btn {
-            background: var(--theme-color); color: white; border: none; padding: 0.8rem 2rem;
-            border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
-        }
-        .save-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        /* --- Chat Window (Shared) --- */
+        .chat-container { background: rgba(0, 0, 0, 0.3); border-radius: 12px; border: 1px solid var(--glass-border); overflow: hidden; display: flex; flex-direction: column; height: 400px; }
+        .chat-history { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 80%; padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .msg-ai { align-self: flex-start; background: #2d2d2d; border-bottom-left-radius: 2px; color: #ddd; }
+        .msg-user { align-self: flex-end; background: var(--theme-color); border-bottom-right-radius: 2px; color: white; transition: background 0.3s; }
+        .chat-input-area { padding: 10px; background: rgba(255,255,255,0.03); display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
+        .chat-input-area input { padding: 0.8rem; border-radius: 50px; flex: 1; }
+        .send-chat-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--theme-color); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background 0.3s; }
         
-        .pill-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer; margin-right: 5px; margin-bottom: 5px; }
+        /* --- LIVE INBOX SPECIFIC STYLES --- */
+        .inbox-layout { display: flex; height: 75vh; gap: 0; }
+        .inbox-sidebar { width: 300px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; background: rgba(0,0,0,0.2); }
+        .inbox-main { flex: 1; display: flex; flex-direction: column; }
+        
+        .platform-selector { display: flex; justify-content: space-around; padding: 15px; border-bottom: 1px solid var(--glass-border); }
+        .platform-btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: transform 0.2s; background: rgba(255,255,255,0.1); color: white; }
+        .platform-btn:hover, .platform-btn.active { transform: scale(1.1); filter: brightness(1.2); }
+        
+        .contact-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .contact-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; border-radius: 8px; transition: background 0.2s; display: flex; align-items: center; gap: 10px; }
+        .contact-item:hover, .contact-item.active { background: rgba(255,255,255,0.05); }
+        .contact-item.active { border-left: 3px solid var(--theme-color); }
+        .contact-avatar { width: 35px; height: 35px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+        
+        .inbox-header { padding: 15px; border-bottom: 1px solid var(--glass-border); font-weight: bold; background: rgba(0,0,0,0.1); }
 
-        /* Mobile Responsive */
+        /* --- Actions --- */
+        .suggestions { margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .pill-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+        .pill-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.3); }
+        .action-container { margin-top: 1rem; display: flex; justify-content: flex-end; }
+        .save-btn { background: var(--theme-color); color: white; border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0, 0.3); transition: transform 0.2s, box-shadow 0.2s, background 0.3s; }
+        .save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0, 0.5); }
+
+        /* --- Overlays --- */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #toast.success { border-left: 4px solid var(--success); }
+        #toast.error { border-left: 4px solid var(--error); }
+        #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 16, 20, 0.85); backdrop-filter: blur(5px); z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 15px; transition: opacity 0.5s ease; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: var(--theme-color); animation: spin 1s ease-in-out infinite; transition: border-top-color 0.3s; }
+        .loading-text { font-size: 0.9rem; color: var(--text-muted); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Mobile */
         @media (max-width: 768px) {
-            .nav-links { display: none; position: absolute; top: 60px; left: 0; width: 100%; background: #1a1b20; flex-direction: column; }
+            .nav-links { position: absolute; top: 60px; left: 0; width: 100%; background: #1a1b20; flex-direction: column; display: none; }
             .nav-links.open { display: flex; }
-            .inbox-container { flex-direction: column; height: auto; }
-            .inbox-sidebar { width: 100%; height: 300px; }
-            .inbox-chat { height: 500px; }
+            .nav-item { border-radius: 0; padding: 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); }
             .hamburger { display: block; }
+            main { padding: 5rem 1rem; }
+            .inbox-layout { flex-direction: column; height: auto; }
+            .inbox-sidebar { width: 100%; height: 300px; border-right: none; border-bottom: 1px solid var(--glass-border); }
+            .inbox-main { height: 500px; }
         }
     </style>
 </head>
-<body class="theme-website">
+<body>
 
-    <div id="loader-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; display:flex; justify-content:center; align-items:center; flex-direction:column;">
-        <div style="width:40px; height:40px; border:3px solid #333; border-top-color:white; border-radius:50%; animation:spin 1s infinite linear;"></div>
-        <div style="margin-top:10px; color:#aaa;">Loading...</div>
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Fetching Agent Configurations...</div>
     </div>
-    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
     <nav class="glass">
-        <div class="logo">DIGITIVIA</div>
+        <div class="logo">DIGITIVIA<span style="color:white"> AGENTCONTROLLER</span></div>
         <div class="hamburger" onclick="toggleMenu()">☰</div>
         <div class="nav-links" id="navLinks">
-            <div class="nav-item active" onclick="switchMainTab('config')">Configuration</div>
-            <div class="nav-item" onclick="switchMainTab('inbox')">Live Inbox 🔴</div>
+            <div class="nav-item active" onclick="switchTab('website', this)">Website Agent</div>
+            <div class="nav-item" onclick="switchTab('whatsapp', this)">WhatsApp Agent</div>
+            <div class="nav-item" onclick="switchTab('messenger', this)">Messenger Agent</div>
+            <div class="nav-item" onclick="switchTab('instagram', this)">Instagram Agent</div>
+            <div class="nav-item" onclick="switchTab('inbox', this)">🔴 Live Inbox</div>
         </div>
     </nav>
 
     <main>
-        
-        <div id="tab-config" class="tab-content active">
-            <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:10px;">
-                <button class="pill-btn" onclick="switchConfigAgent('website')">Website</button>
-                <button class="pill-btn" onclick="switchConfigAgent('whatsapp')">WhatsApp</button>
-                <button class="pill-btn" onclick="switchConfigAgent('messenger')">Messenger</button>
-                <button class="pill-btn" onclick="switchConfigAgent('instagram')">Instagram</button>
-            </div>
-
-            <div id="config-dynamic-area" class="config-wrapper"></div>
-        </div>
-
-
-        <div id="tab-inbox" class="tab-content">
-            <div class="card glass inbox-container">
-                
-                <div class="inbox-sidebar">
-                    <div class="platform-selector">
-                        <button class="platform-btn" title="WhatsApp" onclick="loadInbox('whatsapp')">W</button>
-                        <button class="platform-btn" title="Messenger" onclick="loadInbox('messenger')">M</button>
-                        <button class="platform-btn" title="Instagram" onclick="loadInbox('instagram')">I</button>
-                    </div>
-                    <div style="padding:10px; font-size:0.8rem; color:#aaa; text-align:center;">Select platform to load chats</div>
-                    <div id="contact-list" class="contact-list">
-                        </div>
-                </div>
-
-                <div class="inbox-chat">
-                    <div class="chat-header">
-                        <span id="chat-header-name">Select a conversation</span>
-                    </div>
-                    <div id="inbox-messages" class="chat-messages">
-                        </div>
-                </div>
-
-            </div>
-        </div>
-
+        <div id="dynamic-content-area"></div>
     </main>
+
+    <div id="toast">Saved Successfully!</div>
 
     <script>
         // --- CONFIGURATION ---
         const CONFIG_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/promptAgent";
         const CHAT_WEBHOOK   = "https://n8n.srv1174105.hstgr.cloud/webhook/chatHandler";
+        const HISTORY_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/getchathistory"; // Specific URL for inbox
 
-        // Agents Data
+        // Define Agents & Colors
         const AGENTS = [
-            { id: 'website', name: 'Website Agent', color: '#00E5FF', theme: 'theme-website' },
-            { id: 'whatsapp', name: 'WhatsApp Agent', color: '#25D366', theme: 'theme-whatsapp' },
-            { id: 'messenger', name: 'Messenger Agent', color: '#0084FF', theme: 'theme-messenger' },
-            { id: 'instagram', name: 'Instagram Agent', color: '#E1306C', theme: 'theme-instagram' }
+            { id: 'website', name: 'Website Agent', color: '#00E5FF' },
+            { id: 'whatsapp', name: 'WhatsApp Agent', color: '#25D366' },
+            { id: 'messenger', name: 'Messenger Agent', color: '#0084FF' },
+            { id: 'instagram', name: 'Instagram Agent', color: '#E1306C' }
         ];
 
-        // --- GLOBAL STATE ---
-        let currentConfigAgent = 'website';
-        let currentInboxPlatform = 'whatsapp';
-        let currentChatUser = null;
-        let chatPage = 1;
-
-        // --- INIT ---
-        window.onload = function() {
-            buildConfigInterface();
-            fetchConfigData();
-            document.getElementById('loader-overlay').style.display = 'none';
+        const TONE_OPTIONS = ["Professional & Formal", "Friendly & Casual", "Empathetic & Helpful", "Sales-Oriented & Persuasive", "Witty & Humorous"];
+        const PROMPT_TEMPLATES = {
+            customer_service: "You are an empathetic and efficient Customer Service Agent...",
+            sales: "You are a persuasive and energetic Sales Agent..."
         };
 
-        // ==========================================
-        //       PART 1: NAVIGATION & THEMES
-        // ==========================================
+        // --- 1. BUILD UI ---
+        function buildInterface() {
+            const container = document.getElementById('dynamic-content-area');
+            let html = '';
 
-        function switchMainTab(tabName) {
-            document.getElementById('tab-config').classList.remove('active');
-            document.getElementById('tab-inbox').classList.remove('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            // Highlight nav
-            const navIndex = tabName === 'config' ? 0 : 1;
-            document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
-
-            // Reset theme if going back to config
-            if(tabName === 'config') setTheme(currentConfigAgent);
-            else setTheme(currentInboxPlatform);
-        }
-
-        function switchConfigAgent(agentId) {
-            currentConfigAgent = agentId;
-            setTheme(agentId);
-            
-            // Show only selected agent card
-            document.querySelectorAll('.agent-config-card').forEach(el => el.style.display = 'none');
-            document.getElementById(`card-${agentId}`).style.display = 'block';
-        }
-
-        function setTheme(agentId) {
-            const agent = AGENTS.find(a => a.id === agentId);
-            if(agent) {
-                document.body.className = agent.theme;
-            }
-        }
-
-        // ==========================================
-        //       PART 2: LIVE INBOX LOGIC
-        // ==========================================
-
-        async function loadInbox(platform) {
-            currentInboxPlatform = platform;
-            setTheme(platform);
-            
-            // UI Update
-            document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active'); // active clicked button
-
-            const list = document.getElementById('contact-list');
-            list.innerHTML = '<div style="padding:20px; text-align:center;">Loading...</div>';
-
-            try {
-                // Fetch Unique Users (Requires n8n action=get_contacts)
-                const res = await fetch(`${CHAT_WEBHOOK}?action=get_contacts&platform=${platform}`);
-                const data = await res.json();
-                
-                list.innerHTML = '';
-                
-                // Assuming data is array of { user_id: '123', last_message: '...' }
-                const users = Array.isArray(data) ? data : (data.users || []);
-
-                if(users.length === 0) {
-                    list.innerHTML = '<div style="padding:20px; text-align:center;">No active chats found.</div>';
-                    return;
-                }
-
-                users.forEach(u => {
-                    const div = document.createElement('div');
-                    div.className = 'contact-item';
-                    div.onclick = () => loadConversation(u.user_id, platform);
-                    div.innerHTML = `
-                        <div class="contact-avatar">${u.user_id.substring(0,2).toUpperCase()}</div>
-                        <div class="contact-info">
-                            <div class="contact-name">${u.user_id}</div>
-                            <div class="contact-preview">Click to view chat</div>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-
-            } catch(e) {
-                console.error(e);
-                list.innerHTML = '<div style="color:red; padding:20px;">Error loading contacts</div>';
-            }
-        }
-
-        async function loadConversation(userId, platform, page = 1) {
-            currentChatUser = userId;
-            chatPage = page;
-            const container = document.getElementById('inbox-messages');
-            
-            if(page === 1) {
-                container.innerHTML = '<div style="text-align:center; padding:20px;">Loading messages...</div>';
-                document.getElementById('chat-header-name').innerText = `Chat with ${userId}`;
-                
-                // Update active state in sidebar
-                document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
-                // (Optional: Find clicked element and add active)
-            }
-
-            try {
-                // Fetch Messages (Requires n8n action=get_messages)
-                const offset = (page - 1) * 20; 
-                const res = await fetch(`${CHAT_WEBHOOK}?action=get_messages&platform=${platform}&user_id=${userId}&limit=20&offset=${offset}`);
-                const data = await res.json();
-                
-                const messages = Array.isArray(data) ? data : (data.messages || []);
-
-                if(page === 1) container.innerHTML = '';
-
-                // Add "Load More" button if it's page 1 and we have data
-                if(page === 1 && messages.length >= 20) {
-                    const btn = document.createElement('button');
-                    btn.className = 'load-more-btn';
-                    btn.innerText = 'Load Previous Messages';
-                    btn.onclick = () => loadConversation(userId, platform, chatPage + 1);
-                    container.prepend(btn);
-                }
-
-                // Render Messages (Prepend if pagination, Append if new)
-                // Note: Messages usually come oldest -> newest. 
-                // For pagination (history), we might need to handle order carefully.
-                
-                messages.forEach(msg => {
-                    const div = document.createElement('div');
-                    // 'sender' from DB should be 'user' or 'ai'
-                    div.className = `chat-msg ${msg.sender === 'user' ? 'user' : 'ai'}`;
-                    div.innerText = msg.message;
-                    
-                    if(page === 1) container.appendChild(div); // Append normally
-                    else {
-                        // Insert after load button
-                         container.insertBefore(div, container.children[1]); 
-                    }
-                });
-
-                if(page === 1) container.scrollTop = container.scrollHeight;
-
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
-        // ==========================================
-        //       PART 3: CONFIGURATION BUILDER
-        // ==========================================
-        // (This rebuilds your original dashboard UI dynamically)
-
-        function buildConfigInterface() {
-            const container = document.getElementById('config-dynamic-area');
-            container.innerHTML = '';
-
-            AGENTS.forEach((agent, index) => {
-                const displayStyle = index === 0 ? 'block' : 'none'; // Show first agent by default
-                
-                const html = `
-                <div id="card-${agent.id}" class="agent-config-card" style="display:${displayStyle}">
+            // A. CONFIG TABS (Existing)
+            AGENTS.forEach((agent) => {
+                html += `
+                <div id="${agent.id}" class="tab-content">
                     <div class="card glass">
-                        <h2><span class="icon-circle" style="background: ${agent.color};"></span> ${agent.name} Configuration</h2>
-                        
+                        <h2><span class="icon-circle" style="background: ${agent.color};"></span> ${agent.name}</h2>
                         <div class="section-wrapper">
-                            <div class="section-header active" onclick="toggleSection('${agent.id}-prompt')">System Prompt</div>
-                            <div id="${agent.id}-prompt" class="section-content open">
-                                <textarea id="prompt-${agent.id}" placeholder="Enter system prompt..."></textarea>
+                            <div class="section-header active" onclick="toggleSection('${agent.id}-prompt-sec')">Agent Role (System Prompt)</div>
+                            <div id="${agent.id}-prompt-sec" class="section-content open">
+                                <textarea id="prompt-${agent.id}" placeholder="Define how your agent should behave..."></textarea>
+                                <div class="suggestions">
+                                    <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'customer_service')">✨ Customer Service</button>
+                                    <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'sales')">🚀 Sales Agent</button>
+                                </div>
                             </div>
                         </div>
-
                         <div class="section-wrapper">
-                            <div class="section-header" onclick="toggleSection('${agent.id}-tone')">Agent Tone</div>
-                            <div id="${agent.id}-tone" class="section-content">
+                            <div class="section-header" onclick="toggleSection('${agent.id}-tone-sec')">Agent Tone</div>
+                            <div id="${agent.id}-tone-sec" class="section-content">
                                 <select id="tone-${agent.id}">
-                                    <option value="" disabled selected>Select Tone</option>
-                                    <option value="Professional">Professional</option>
-                                    <option value="Friendly">Friendly</option>
-                                    <option value="Sales">Sales</option>
+                                    <option value="" disabled selected>Select a tone...</option>
+                                    ${TONE_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
                                 </select>
                             </div>
                         </div>
-
                         <div class="section-wrapper">
-                            <div class="section-header" onclick="toggleSection('${agent.id}-chat')">Test Chat</div>
-                            <div id="${agent.id}-chat" class="section-content">
+                            <div class="section-header" onclick="toggleSection('${agent.id}-links-sec')">Knowledge Base (Links)</div>
+                            <div id="${agent.id}-links-sec" class="section-content">
+                                <div id="links-container-${agent.id}"></div>
+                                <div class="add-link-btn" onclick="addLinkField('${agent.id}')">+ Add Another Link</div>
+                            </div>
+                        </div>
+                        <div class="section-wrapper">
+                            <div class="section-header" onclick="toggleSection('${agent.id}-chat-sec', true, '${agent.id}')">Test Chat Window</div>
+                            <div id="${agent.id}-chat-sec" class="section-content">
                                 <div class="chat-container">
-                                    <div id="history-${agent.id}" class="chat-history"></div>
+                                    <div id="chat-history-${agent.id}" class="chat-history">
+                                        <div class="message msg-ai">Hello! I am the ${agent.name}. How can I help?</div>
+                                    </div>
                                     <div class="chat-input-area">
-                                        <input id="input-${agent.id}" placeholder="Type...">
-                                        <button class="send-chat-btn" onclick="sendTestChat('${agent.id}')">➤</button>
+                                        <input type="text" id="chat-input-${agent.id}" placeholder="Type a message..." onkeypress="handleEnter(event, '${agent.id}')">
+                                        <button class="send-chat-btn" onclick="sendChatMessage('${agent.id}')">➤</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="action-container">
-                            <button class="save-btn" onclick="saveConfig('${agent.id}')">Save Settings</button>
+                            <button class="save-btn" onclick="saveRole('${agent.id}')">Save Role</button>
                         </div>
                     </div>
                 </div>`;
-                container.innerHTML += html;
             });
+
+            // B. LIVE INBOX TAB (New Premium Feature)
+            html += `
+            <div id="inbox" class="tab-content">
+                <div class="card glass" style="padding:0; overflow:hidden;">
+                    <div class="inbox-layout">
+                        <div class="inbox-sidebar">
+                            <div class="platform-selector">
+                                <button class="platform-btn" style="background:#25D366" onclick="loadInbox('whatsapp')">W</button>
+                                <button class="platform-btn" style="background:#0084FF" onclick="loadInbox('messenger')">M</button>
+                                <button class="platform-btn" style="background:#E1306C" onclick="loadInbox('instagram')">I</button>
+                            </div>
+                            <div style="padding:10px; font-size:0.8rem; text-align:center; color:#888;">Select Platform</div>
+                            <div id="contact-list" class="contact-list"></div>
+                        </div>
+                        <div class="inbox-main">
+                            <div class="inbox-header" id="inbox-header-title">Select a conversation</div>
+                            <div id="inbox-messages" class="chat-history" style="background:rgba(0,0,0,0.2);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+            
+            // Set initial active tab
+            document.getElementById('website').classList.add('active');
         }
 
-        // Helper Functions for Config
-        function toggleSection(id) {
-            document.getElementById(id).classList.toggle('open');
+        window.onload = function() {
+            buildInterface();
+            fetchCurrentConfigurations();
+        };
+
+        // --- 2. THEME & NAVIGATION ---
+        function switchTab(tabId, element) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(tabId).classList.add('active');
+            if(element) element.classList.add('active');
+
+            // Apply Theme Color
+            let color = '#4363E8'; // Default Blue
+            if(tabId === 'whatsapp') color = '#25D366';
+            if(tabId === 'messenger') color = '#0084FF';
+            if(tabId === 'instagram') color = '#E1306C';
+            if(tabId === 'website') color = '#00E5FF';
+            if(tabId === 'inbox') color = '#ffffff'; // Neutral for Inbox initially
+
+            document.documentElement.style.setProperty('--theme-color', color);
+
+            if (document.getElementById('navLinks').classList.contains('open')) toggleMenu();
         }
 
-        async function fetchConfigData() {
-            // Re-using your existing fetch logic
+        // --- 3. LIVE INBOX LOGIC ---
+        async function loadInbox(platform) {
+            // 1. Change Theme
+            let color = '#4363E8';
+            if(platform === 'whatsapp') color = '#25D366';
+            if(platform === 'messenger') color = '#0084FF';
+            if(platform === 'instagram') color = '#E1306C';
+            document.documentElement.style.setProperty('--theme-color', color);
+
+            // 2. Load Contacts
+            const list = document.getElementById('contact-list');
+            list.innerHTML = '<div style="padding:20px; text-align:center;">Loading...</div>';
+            
             try {
-                const res = await fetch(CONFIG_WEBHOOK);
+                // n8n Action: get_contacts
+                const res = await fetch(`${HISTORY_WEBHOOK}?action=get_contacts&platform=${platform}`);
                 const data = await res.json();
-                AGENTS.forEach(a => {
-                    if(data[`system_prompt_${a.id}`]) document.getElementById(`prompt-${a.id}`).value = data[`system_prompt_${a.id}`];
-                    if(data[`agent_tone_${a.id}`]) document.getElementById(`tone-${a.id}`).value = data[`agent_tone_${a.id}`];
+                
+                // Expecting { contacts: [{user_id: '123'}, {user_id: '456'}] }
+                // OR simple array [{user_id: '123'}]
+                const contacts = data.contacts || data; 
+
+                list.innerHTML = '';
+                if(!contacts || contacts.length === 0) {
+                    list.innerHTML = '<div style="padding:20px; text-align:center;">No chats found.</div>';
+                    return;
+                }
+
+                contacts.forEach(contact => {
+                    const div = document.createElement('div');
+                    div.className = 'contact-item';
+                    div.onclick = () => loadInboxMessages(platform, contact.user_id);
+                    div.innerHTML = `
+                        <div class="contact-avatar">👤</div>
+                        <div>${contact.user_id}</div>
+                    `;
+                    list.appendChild(div);
                 });
-            } catch(e) { console.log("Config load error", e); }
+            } catch(e) {
+                list.innerHTML = '<div style="padding:20px; color:red;">Error loading contacts.</div>';
+                console.error(e);
+            }
         }
 
-        async function saveConfig(agentId) {
+        async function loadInboxMessages(platform, userId) {
+            const container = document.getElementById('inbox-messages');
+            document.getElementById('inbox-header-title').innerText = `Chat with ${userId}`;
+            container.innerHTML = '<div style="padding:20px; text-align:center;">Loading history...</div>';
+
+            try {
+                // n8n Action: get_messages
+                const res = await fetch(`${HISTORY_WEBHOOK}?action=get_messages&platform=${platform}&user_id=${userId}`);
+                const data = await res.json();
+                
+                const messages = data.messages || data;
+                container.innerHTML = '';
+
+                if(messages.length === 0) {
+                    container.innerHTML = '<div style="padding:20px; text-align:center;">No messages yet.</div>';
+                    return;
+                }
+
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    // DB column 'sender' should be 'user' or 'ai'
+                    div.className = `message ${msg.sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+                    div.innerHTML = msg.message;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = 'Error loading messages';
+            }
+        }
+
+        // --- 4. STANDARD LOGIC (From previous code) ---
+        function addLinkField(agentId, value = "") {
+            const container = document.getElementById(`links-container-${agentId}`);
+            const div = document.createElement('div');
+            div.className = 'link-row';
+            div.innerHTML = `<input type="text" class="link-input" value="${value}" placeholder="https://..."><div class="remove-link" onclick="this.parentElement.remove()">×</div>`;
+            container.appendChild(div);
+        }
+
+        function getLinksAsCommaString(agentId) {
+            const inputs = document.querySelectorAll(`#links-container-${agentId} .link-input`);
+            return Array.from(inputs).map(input => input.value.trim()).filter(val => val !== "").join(', ');
+        }
+
+        async function fetchCurrentConfigurations() {
+            const loader = document.getElementById('loader-overlay');
+            try {
+                const response = await fetch(CONFIG_WEBHOOK, { method: 'GET' });
+                if (response.ok) {
+                    const data = await response.json();
+                    AGENTS.forEach(agent => {
+                        const promptVal = data[`system_prompt_${agent.id}`];
+                        if(promptVal) document.getElementById(`prompt-${agent.id}`).value = promptVal;
+                        const toneVal = data[`agent_tone_${agent.id}`];
+                        if(toneVal) document.getElementById(`tone-${agent.id}`).value = toneVal;
+                        const linksVal = data[`links_${agent.id}`];
+                        if(linksVal) {
+                            const linksArray = linksVal.split(',');
+                            linksArray.forEach(link => addLinkField(agent.id, link.trim()));
+                        } else {
+                            addLinkField(agent.id);
+                        }
+                    });
+                }
+            } catch (error) { console.error("Fetch error", error); AGENTS.forEach(a => addLinkField(a.id)); } 
+            finally { loader.style.opacity = '0'; setTimeout(() => { loader.style.display = 'none'; }, 500); }
+        }
+
+        async function saveRole(agentId) {
             const prompt = document.getElementById(`prompt-${agentId}`).value;
             const tone = document.getElementById(`tone-${agentId}`).value;
+            const linksString = getLinksAsCommaString(agentId);
+            const btn = document.querySelector(`#${agentId} .save-btn`);
+            const originalText = btn.innerText;
+            btn.innerText = "Saving...";
             
-            // Simplified save payload for demo
-            const payload = { agent_source: agentId, system_prompt: prompt };
-            payload[`agent_tone_${agentId}`] = tone;
+            try {
+                const payload = {
+                    agent_source: agentId,
+                    system_prompt: prompt,
+                    timestamp: new Date().toISOString()
+                };
+                payload[`agent_tone_${agentId}`] = tone;
+                payload[`links_${agentId}`] = linksString;
 
-            await fetch(CONFIG_WEBHOOK, { method: 'POST', body: JSON.stringify(payload) });
-            alert('Saved!');
-        }
-        
-        // Simple Test Chat Logic (Mini Version)
-        async function sendTestChat(agentId) {
-            const input = document.getElementById(`input-${agentId}`);
-            const text = input.value; 
-            if(!text) return;
-            
-            const hist = document.getElementById(`history-${agentId}`);
-            hist.innerHTML += `<div class="chat-msg user" style="align-self:flex-end; background:${AGENTS.find(a=>a.id===agentId).color}">${text}</div>`;
-            input.value = '';
-
-            // Send to webhook
-            const res = await fetch(CHAT_WEBHOOK, { method: 'POST', body: JSON.stringify({ agent_source: agentId, message: text, sender:'user' }) });
-            const data = await res.json();
-            
-            hist.innerHTML += `<div class="chat-msg ai">${data.reply || "..."}</div>`;
-            hist.scrollTop = hist.scrollHeight;
+                await fetch(CONFIG_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                showToast("Saved Successfully!", "success");
+            } catch(e) { showToast("Error saving data", "error"); } 
+            finally { btn.innerText = originalText; }
         }
 
         function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
 
+        function toggleSection(sectionId, isChat = false, agentId = null) {
+            const section = document.getElementById(sectionId);
+            const header = section.previousElementSibling;
+            const isOpen = section.classList.contains('open');
+            if(isOpen) {
+                section.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                section.classList.add('open');
+                header.classList.add('active');
+                if(isChat && agentId) loadChatHistory(agentId);
+            }
+        }
+
+        function handleEnter(e, agentId) { if(e.key === 'Enter') sendChatMessage(agentId); }
+        function applySuggestion(agentId, type) { document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type]; }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.className = type; t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // --- TEST CHAT LOGIC (For Config Tabs) ---
+        async function loadChatHistory(agentId) {
+            const historyContainer = document.getElementById(`chat-history-${agentId}`);
+            try {
+                const url = `${CHAT_WEBHOOK}?agent_source=${agentId}&action=get_history`;
+                const response = await fetch(url);
+                if(response.ok) {
+                    const data = await response.json();
+                    let messages = [];
+                    if(data.messages && Array.isArray(data.messages)) messages = data.messages;
+                    else if(Array.isArray(data)) messages = data;
+                    
+                    if(messages.length > 0) {
+                        historyContainer.innerHTML = ''; 
+                        messages.forEach(msg => {
+                            appendMessage(agentId, msg.sender, msg.message); 
+                        });
+                        historyContainer.scrollTop = historyContainer.scrollHeight;
+                    }
+                }
+            } catch(e) { console.log("History error", e); }
+        }
+
+        async function sendChatMessage(agentId) {
+            const input = document.getElementById(`chat-input-${agentId}`);
+            const text = input.value.trim();
+            if(!text) return;
+
+            appendMessage(agentId, 'user', text);
+            input.value = '';
+            
+            const historyContainer = document.getElementById(`chat-history-${agentId}`);
+            historyContainer.scrollTop = historyContainer.scrollHeight;
+
+            const loadingId = `loading-${Date.now()}`;
+            appendMessage(agentId, 'ai', '...', loadingId);
+
+            try {
+                const response = await fetch(CHAT_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        agent_source: agentId,
+                        message: text,
+                        sender: 'user',
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+                appendMessage(agentId, 'ai', data.reply || data.output || "No reply received.");
+                historyContainer.scrollTop = historyContainer.scrollHeight;
+            } catch(e) {
+                document.getElementById(loadingId).remove();
+                appendMessage(agentId, 'ai', 'Error: Could not reach agent.');
+            }
+        }
+
+        function appendMessage(agentId, sender, text, id = null) {
+            const container = document.getElementById(`chat-history-${agentId}`);
+            const div = document.createElement('div');
+            div.className = `message ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+            div.innerHTML = text;
+            if(id) div.id = id;
+            container.appendChild(div);
+        }
     </script>
 </body>
 </html>
