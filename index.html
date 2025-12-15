@@ -122,9 +122,11 @@
             overflow: hidden;
         }
 
-        .sidebar:hover {
-            width: var(--sidebar-expanded);
-        }
+       @media (min-width: 769px) {
+            .sidebar:hover {
+        width: var(--sidebar-expanded);
+    }
+}
 
         .sidebar-header {
             height: 70px;
@@ -791,6 +793,7 @@
             document.documentElement.style.setProperty('--theme-color', color);
             
             // Mobile Menu Close
+            document.getElementById('mainSidebar').classList.remove('mobile-open');
             document.getElementById('mainSidebar').classList.remove('mobile-open');
         }
 
