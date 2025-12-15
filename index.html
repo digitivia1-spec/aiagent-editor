@@ -181,10 +181,10 @@
         .sidebar:hover .nav-label {
             opacity: 1;
         }
-
         .sidebar-footer {
-            padding: 20px;
+            padding: 0;  /* Changed from 20px to 0 to fix alignment */
             border-top: 1px solid var(--glass-border);
+            margin-top: auto; /* Ensures it sits at the very bottom */
         }
 
         /* --- MAIN LAYOUT --- */
