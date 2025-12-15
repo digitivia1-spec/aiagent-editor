@@ -7,7 +7,6 @@
     <style>
         :root {
             /* --- CALM PALETTE (Option A) --- */
-            /* Default (Website) - Soft Teal */
             --theme-color: #5BAEB0; 
             
             --glass-bg: rgba(93, 93, 91, 0.25);
@@ -15,20 +14,16 @@
             --bg-dark: #0f1014;
             --text-main: #ffffff;
             --text-muted: #a0a0a0;
-            --success: #66BB6A; /* Softer Green */
-            --error: #EF5350;   /* Softer Red */
+            --success: #66BB6A; 
+            --error: #EF5350;   
             --user-msg-bg: var(--theme-color);
             --ai-msg-bg: #2d2d2d;
         }
 
-        /* --- THEME CLASSES (Calmer Tones) --- */
-        /* WhatsApp: Sage/Soft Green */
+        /* --- THEME CLASSES --- */
         body.theme-whatsapp { --theme-color: #57B078; --bg-dark: #0b141a; }
-        /* Messenger: Soft Slate Blue */
         body.theme-messenger { --theme-color: #5B89CE; --bg-dark: #101010; }
-        /* Instagram: Soft Rose/Mauve */
         body.theme-instagram { --theme-color: #C66B8D; --bg-dark: #0f0f0f; }
-        /* Website: Soft Cyan */
         body.theme-website { --theme-color: #5BAEB0; --bg-dark: #0f1014; }
 
         * {
@@ -40,7 +35,6 @@
 
         body {
             background-color: var(--bg-dark);
-            /* Dynamic background - More subtle/calm gradient */
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, var(--theme-color) 0%, transparent 60%);
@@ -60,13 +54,44 @@
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
+        /* --- LOGIN PAGE STYLES --- */
+        #login-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 3000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 50%, rgba(91, 174, 176, 0.1) 0%, transparent 50%);
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 3rem;
+            text-align: center;
+            border-radius: 20px;
+        }
+        .login-title { margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700; color: var(--theme-color); letter-spacing: 1px; }
+        .login-input { margin-bottom: 1rem; text-align: center; }
+        .login-btn {
+            width: 100%; padding: 1rem; border-radius: 50px; border: none;
+            background: var(--theme-color); color: white; font-weight: bold; font-size: 1rem;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* --- APP CONTAINER (Hidden by default) --- */
+        #app-container { display: none; width: 100%; flex: 1; flex-direction: column; }
+
         /* --- Navigation --- */
         nav {
             position: fixed; top: 0; width: 100%; z-index: 100;
             padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
         }
         .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; color: var(--theme-color); transition: color 0.5s; }
-        .nav-links { display: flex; gap: 2rem; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
         .nav-item {
             cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;
             transition: all 0.3s ease; color: var(--text-muted); font-size: 0.9rem;
@@ -74,6 +99,12 @@
         .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .nav-item.active { background: var(--theme-color); color: white; box-shadow: 0 0 15px var(--theme-color); transition: background 0.3s, box-shadow 0.3s; }
         .hamburger { display: none; cursor: pointer; font-size: 1.5rem; }
+        
+        .logout-btn { 
+            font-size: 0.8rem; color: var(--error); cursor: pointer; margin-left: 10px; 
+            border: 1px solid rgba(239, 83, 80, 0.3); padding: 5px 10px; border-radius: 8px;
+        }
+        .logout-btn:hover { background: rgba(239, 83, 80, 0.1); }
 
         /* --- Main Content --- */
         main { flex: 1; padding: 6rem 1rem 2rem 1rem; max-width: 1000px; width: 100%; margin: 0 auto; }
@@ -99,7 +130,7 @@
 
         /* --- Inputs --- */
         label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-        textarea, input[type="text"], select {
+        textarea, input[type="text"], select, input[type="password"] {
             width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
             border-radius: 12px; padding: 1rem; color: white; font-size: 1rem; outline: none; transition: border 0.3s;
         }
@@ -158,7 +189,7 @@
         .save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0, 0.5); }
 
         /* --- Overlays --- */
-        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 3500; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         #toast.success { border-left: 4px solid var(--success); }
         #toast.error { border-left: 4px solid var(--error); }
@@ -182,26 +213,38 @@
 </head>
 <body>
 
-    <div id="loader-overlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Fetching Agent Configurations...</div>
+    <div id="login-container">
+        <div class="card glass login-card">
+            <div class="login-title">DIGITIVIA ACCESS</div>
+            <input type="text" id="login-user" class="login-input" placeholder="Username">
+            <input type="password" id="login-pass" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="performLogin()">LOGIN</button>
+        </div>
     </div>
 
-    <nav class="glass">
-        <div class="logo">DIGITIVIA<span style="color:white"> AGENTCONTROLLER</span></div>
-        <div class="hamburger" onclick="toggleMenu()">☰</div>
-        <div class="nav-links" id="navLinks">
-            <div class="nav-item active" onclick="switchTab('website', this)">Website Agent</div>
-            <div class="nav-item" onclick="switchTab('whatsapp', this)">WhatsApp Agent</div>
-            <div class="nav-item" onclick="switchTab('messenger', this)">Messenger Agent</div>
-            <div class="nav-item" onclick="switchTab('instagram', this)">Instagram Agent</div>
-            <div class="nav-item" onclick="switchTab('inbox', this)">🔴 Live Inbox</div>
+    <div id="app-container">
+        <div id="loader-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Fetching Agent Configurations...</div>
         </div>
-    </nav>
 
-    <main>
-        <div id="dynamic-content-area"></div>
-    </main>
+        <nav class="glass">
+            <div class="logo">DIGITIVIA<span style="color:white"> AGENTCONTROLLER</span></div>
+            <div class="hamburger" onclick="toggleMenu()">☰</div>
+            <div class="nav-links" id="navLinks">
+                <div class="nav-item active" onclick="switchTab('website', this)">Website Agent</div>
+                <div class="nav-item" onclick="switchTab('whatsapp', this)">WhatsApp Agent</div>
+                <div class="nav-item" onclick="switchTab('messenger', this)">Messenger Agent</div>
+                <div class="nav-item" onclick="switchTab('instagram', this)">Instagram Agent</div>
+                <div class="nav-item" onclick="switchTab('inbox', this)">🔴 Live Inbox</div>
+                <div class="logout-btn" onclick="performLogout()">Logout</div>
+            </div>
+        </nav>
+
+        <main>
+            <div id="dynamic-content-area"></div>
+        </main>
+    </div>
 
     <div id="toast">Saved Successfully!</div>
 
@@ -210,6 +253,7 @@
         const CONFIG_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/promptAgent";
         const CHAT_WEBHOOK   = "https://n8n.srv1174105.hstgr.cloud/webhook/chatHandler";
         const HISTORY_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/getchathistory"; 
+        const AUTH_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/login_creds";
 
         // Define Agents & Colors
         const AGENTS = [
@@ -225,12 +269,91 @@
             sales: "You are a persuasive and energetic Sales Agent..."
         };
 
-        // --- GLOBAL STATE for Auto Refresh ---
+        // --- GLOBAL STATE ---
         let currentInboxPlatform = null;
         let currentChatUser = null;
-        let currentChatUserName = null; // Store name to avoid fetch flickering
+        let currentChatUserName = null; 
 
-        // --- 1. BUILD UI ---
+        // ==========================================
+        //       AUTH LOGIC (GATEKEEPER)
+        // ==========================================
+        
+        window.onload = function() {
+            const token = localStorage.getItem('digitivia_auth_token');
+            if (token === 'valid_session') {
+                showApp();
+            } else {
+                // Show Login Screen (Default)
+            }
+        };
+
+        async function performLogin() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            const btn = document.querySelector('.login-btn');
+
+            if(!user || !pass) {
+                showToast("Please fill in all fields", "error");
+                return;
+            }
+
+            btn.innerText = "VERIFYING...";
+            btn.style.opacity = "0.7";
+
+            try {
+                const response = await fetch(AUTH_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                const data = await response.json();
+
+                if (data.success === true) {
+                    localStorage.setItem('digitivia_auth_token', 'valid_session');
+                    showApp();
+                } else {
+                    showToast("Invalid Credentials", "error");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Server Connection Error", "error");
+            } finally {
+                btn.innerText = "LOGIN";
+                btn.style.opacity = "1";
+            }
+        }
+
+        function performLogout() {
+            localStorage.removeItem('digitivia_auth_token');
+            location.reload(); // Refresh to lock
+        }
+
+        function showApp() {
+            document.getElementById('login-container').style.display = 'none';
+            const app = document.getElementById('app-container');
+            app.style.display = 'flex';
+            
+            // Initialize App
+            buildInterface();
+            fetchCurrentConfigurations();
+            document.getElementById('loader-overlay').style.display = 'none';
+            startAutoRefresh();
+        }
+
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (document.getElementById('inbox').classList.contains('active')) {
+                    if(currentInboxPlatform) loadInbox(currentInboxPlatform, true); 
+                    if(currentChatUser) loadInboxMessages(currentInboxPlatform, currentChatUser, currentChatUserName, true);
+                }
+            }, 6500); 
+        }
+
+        // ==========================================
+        //       MAIN APP LOGIC (UI BUILDER)
+        // ==========================================
+
         function buildInterface() {
             const container = document.getElementById('dynamic-content-area');
             let html = '';
@@ -288,12 +411,9 @@
                 </div>`;
             });
 
-            // B. LIVE INBOX TAB (Updated with Icons)
-            // Icons are SVGs inline
+            // B. LIVE INBOX TAB
             const iconWhatsapp = `<svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c1.024.558 1.815.842 2.802.842h.002c3.178 0 5.769-2.587 5.769-5.766 0-1.545-.601-2.997-1.692-4.088-1.09-1.091-2.539-1.691-4.085-1.691zm0-2c2.083 0 4.041.812 5.513 2.285 1.472 1.474 2.282 3.432 2.281 5.515 0 4.296-3.499 7.794-7.796 7.794-1.312 0-2.551-.33-3.666-.921l-4.093 1.073 1.092-3.987c-.672-1.163-1.025-2.478-1.025-3.959.001-4.301 3.502-7.8 7.802-7.8"/></svg>`;
-            
             const iconMessenger = `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.86 7.02-.06.71-.24 2.53-.54 3.79 1.43-.37 3.39-1.01 4.58-1.55.67.19 1.39.3 2.1.3 5.52 0 10-4.03 10-9S17.52 2 12 2zm1.2 12.39l-2.67-2.85-5.23 2.85 5.76-6.11 2.64 2.85 5.26-2.85-5.76 6.11z"/></svg>`;
-            
             const iconInstagram = `<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
 
             html += `
@@ -318,38 +438,19 @@
             </div>`;
 
             container.innerHTML = html;
-            
             document.getElementById('website').classList.add('active');
         }
 
-        window.onload = function() {
-            buildInterface();
-            fetchCurrentConfigurations();
-            document.getElementById('loader-overlay').style.display = 'none';
-            
-            // --- 4. START AUTO-REFRESH (6.5s) ---
-            setInterval(() => {
-                // Check if Inbox tab is currently active
-                if (document.getElementById('inbox').classList.contains('active')) {
-                    // Smart Refresh: Only update contacts and current chat
-                    if(currentInboxPlatform) loadInbox(currentInboxPlatform, true); 
-                    if(currentChatUser) loadInboxMessages(currentInboxPlatform, currentChatUser, currentChatUserName, true);
-                }
-            }, 6500); 
-        };
-
-        // --- 2. THEME & NAVIGATION ---
+        // --- THEME & NAVIGATION ---
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             if(element) element.classList.add('active');
 
-            // Apply Calm Theme Color
             let color = '#5BAEB0'; 
             if(tabId === 'whatsapp') color = '#57B078';
-            if(tabId === 'page') color = '#5B89CE';
+            if(tabId === 'page' || tabId === 'messenger') color = '#5B89CE';
             if(tabId === 'instagram') color = '#C66B8D';
             if(tabId === 'website') color = '#5BAEB0';
             if(tabId === 'inbox') color = '#ffffff'; 
@@ -358,9 +459,8 @@
             if (document.getElementById('navLinks').classList.contains('open')) toggleMenu();
         }
 
-        // --- 3. LIVE INBOX LOGIC (With Auto-Refresh Support) ---
+        // --- LIVE INBOX LOGIC ---
         async function loadInbox(platform, isAutoRefresh = false) {
-            // Only update theme/state if explicitly clicked (not auto-refresh)
             if(!isAutoRefresh) {
                 currentInboxPlatform = platform;
                 let color = '#57B078';
@@ -382,20 +482,14 @@
                     return;
                 }
 
-                // Re-render list (Simple approach for single file)
-                // To avoid flickering, you could diff the list, but full replace is safer for sync
                 const newContent = document.createElement('div');
-                
                 contacts.forEach(contact => {
                     const div = document.createElement('div');
                     div.className = 'contact-item';
-                    if(contact.user_id === currentChatUser) div.classList.add('active'); // Keep active state
-                    
+                    if(contact.user_id === currentChatUser) div.classList.add('active'); 
                     div.onclick = () => loadInboxMessages(platform, contact.user_id, contact.user_name);
-                    
                     const displayName = contact.user_name || contact.user_id; 
                     const displayId = contact.user_name ? contact.user_id : ''; 
-
                     div.innerHTML = `
                         <div class="contact-avatar">${displayName.substring(0,2).toUpperCase()}</div>
                         <div class="contact-info">
@@ -405,10 +499,8 @@
                     `;
                     newContent.appendChild(div);
                 });
-                
                 list.innerHTML = '';
                 list.appendChild(newContent);
-
             } catch(e) {
                 if(!isAutoRefresh) list.innerHTML = '<div style="padding:20px; color:red;">Error loading contacts.</div>';
             }
@@ -417,7 +509,6 @@
         async function loadInboxMessages(platform, userId, userName, isAutoRefresh = false) {
             currentChatUser = userId;
             currentChatUserName = userName;
-            
             const container = document.getElementById('inbox-messages');
             const displayName = userName || userId;
             
@@ -436,11 +527,7 @@
                     return;
                 }
 
-                // Logic: Clear and rebuild. 
-                // To prevent scroll jumping on auto-refresh:
-                // 1. Check if user is at bottom
                 const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
-                
                 container.innerHTML = '';
                 messages.forEach(msg => {
                     const div = document.createElement('div');
@@ -449,17 +536,15 @@
                     container.appendChild(div);
                 });
 
-                // Only auto-scroll if it's a fresh load OR user was already at bottom
                 if(!isAutoRefresh || isAtBottom) {
                     container.scrollTop = container.scrollHeight;
                 }
-
             } catch(e) {
                 if(!isAutoRefresh) container.innerHTML = 'Error loading messages';
             }
         }
 
-        // --- 4. STANDARD LOGIC ---
+        // --- STANDARD LOGIC ---
         function addLinkField(agentId, value = "") {
             const container = document.getElementById(`links-container-${agentId}`);
             const div = document.createElement('div');
@@ -545,7 +630,6 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // --- TEST CHAT LOGIC ---
         async function loadChatHistory(agentId) {
             const historyContainer = document.getElementById(`chat-history-${agentId}`);
             try {
