@@ -269,6 +269,9 @@
         .insights-platforms {
             display: flex;
             gap: 15px;
+    /* --- NEW LINES TO ADD --- */
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .platform-chip {
@@ -436,7 +439,11 @@
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .mobile-top-bar { display: flex; } /* Show Top Bar */
+            .mobile-top-bar { display: flex; }
+
+            .sidebar-header {
+                display: none;
+            }
             .sidebar { 
                 width: 0; 
                 transition: width 0.3s ease; /* Ensure animation works */
