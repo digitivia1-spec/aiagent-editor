@@ -10,7 +10,7 @@
             --theme-color: #5BAEB0; 
             
             /* Premium Dark Glass Theme */
-            --glass-bg: rgba(18, 18, 20, 0.75);
+            --glass-bg: rgba(15, 15, 18, 0.85);
             --glass-border: rgba(255, 255, 255, 0.08);
             --bg-dark: #0f1014;
             --text-main: #ffffff;
@@ -47,31 +47,31 @@
             border: 1px solid var(--glass-border);
         }
 
-        /* --- 1. SLIM PREMIUM NAVIGATION (Adidas Style) --- */
+        /* --- 1. EFFICIENT PREMIUM NAVIGATION --- */
         nav {
             position: fixed; top: 0; width: 100%; z-index: 100;
-            padding: 0 2rem; height: 60px; /* Slimmer height */
+            padding: 0 2rem; height: 60px; /* Slimmer profile */
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(10, 10, 12, 0.85); /* Darker for contrast */
-            backdrop-filter: blur(15px);
+            background: rgba(10, 10, 12, 0.9); /* Higher contrast */
             border-bottom: 1px solid var(--glass-border);
         }
         .logo { font-weight: 800; font-size: 0.95rem; letter-spacing: 2px; color: white; text-transform: uppercase; }
         .logo span { color: var(--theme-color); transition: color 0.5s; }
         
-        .nav-links { display: flex; gap: 5px; height: 100%; }
+        .nav-links { display: flex; gap: 5px; height: 100%; align-items: center; }
         .nav-item {
             cursor: pointer; 
-            padding: 0 1.2rem; 
+            padding: 0 1rem; 
             height: 100%;
             display: flex; align-items: center;
             color: var(--text-muted); 
-            font-size: 0.7rem; /* Smaller, minimalist text */
+            font-size: 0.7rem; /* Premium small caps */
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s ease;
             border-bottom: 2px solid transparent;
+            white-space: nowrap;
         }
         .nav-item:hover { color: white; }
         .nav-item.active { color: white; border-bottom: 2px solid var(--theme-color); }
@@ -94,7 +94,7 @@
         h2 { margin-bottom: 1.5rem; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; color:white; }
         .icon-circle { width: 10px; height: 10px; border-radius: 50%; background: var(--theme-color); display: inline-block; transition: background 0.3s; }
 
-        /* --- 2. LIVE INSIGHTS VIEW (Global App Style) --- */
+        /* --- 2. LIVE INSIGHTS VIEW (Premium Grid) --- */
         .insights-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         
         /* Platform Tabs inside Insights */
@@ -112,11 +112,11 @@
             background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 8px 15px; 
             border-radius: 6px; outline: none; cursor: pointer; font-size: 0.8rem; font-weight: 600;
         }
-        .period-select:disabled { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+        .period-select:disabled { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
         .period-select option { background: #1a1b20; }
 
         /* KPI Grid */
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
         .kpi-card { 
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; 
@@ -223,7 +223,7 @@
 
     <div id="login-container">
         <div class="login-card">
-            <h2 style="justify-content:center; margin-bottom:2rem; font-size:1.2rem;">DIGITIVIA <span style="color:var(--theme-color)">AI AGENT</span></h2>
+            <h2 style="justify-content:center; margin-bottom:2rem; font-size:1.2rem;">DIGITIVIA <span style="color:var(--theme-color)">ACCESS</span></h2>
             <input type="text" id="login-user" placeholder="Username" style="text-align:center; margin-bottom:10px; background:rgba(0,0,0,0.5);">
             <input type="password" id="login-pass" placeholder="Password" style="text-align:center; margin-bottom:20px; background:rgba(0,0,0,0.5);">
             <button class="login-btn" onclick="performLogin()">LOGIN DASHBOARD</button>
@@ -232,7 +232,7 @@
 
     <div id="app-container">
         <nav>
-            <div class="logo">DIGITIVIA <span>AGENTCONTROLLER</span></div>
+            <div class="logo">DIGITIVIA <span>AGENT</span></div>
             <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</div>
             <div class="nav-links">
                 <div class="nav-item active" onclick="switchTab('website', this)">Website</div>
