@@ -254,9 +254,37 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { border-radius: 20px; padding: 2rem; }
+        .card { border-radius: 20px; padding: 2rem; position: relative; } /* Added relative for absolute positioning of switch */
         h2 { margin-bottom: 1.5rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
         .icon-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--theme-color); display: inline-block; transition: background 0.3s; }
+
+        /* --- TOGGLE SWITCH STYLES (NEW) --- */
+        .agent-header-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+        }
+        .agent-title {
+            display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 500; margin: 0;
+        }
+        .agent-toggle-container {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .toggle-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .switch {
+            position: relative; display: inline-block; width: 50px; height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .4s; border-radius: 34px;
+            border: 1px solid var(--glass-border);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 2px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--success); border-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
         /* --- INSIGHTS STYLES --- */
         .insights-controls {
@@ -799,7 +827,19 @@
                 html += `
                 <div id="${agent.id}" class="tab-content">
                     <div class="card glass">
-                        <h2><span class="icon-circle" style="background: ${agent.color};"></span> ${agent.name}</h2>
+                        <div class="agent-header-row">
+                            <h2 class="agent-title">
+                                <span class="icon-circle" style="background: ${agent.color};"></span> ${agent.name}
+                            </h2>
+                            <div class="agent-toggle-container">
+                                <span class="toggle-label">Active</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="status-${agent.id}" onchange="toggleAgentStatus('${agent.id}')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="section-wrapper">
                             <div class="section-header active" onclick="toggleSection('${agent.id}-prompt-sec')">Agent Role (System Prompt)</div>
                             <div id="${agent.id}-prompt-sec" class="section-content open">
@@ -847,7 +887,7 @@
                 </div>`;
             });
 
-            // B. LIVE INSIGHTS TAB (NEW)
+            // B. LIVE INSIGHTS TAB
             const iconFacebook = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 5 3.66 9.13 8.41 9.88V14.9h-2.53v-2.9h2.53V9.79c0-2.5 1.47-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v6.98C18.34 21.13 22 17 22 12c0-5.52-4.48-10-10-10z"/></svg>`;
             const iconInsta = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>`;
             const iconMsg = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.86 7.02-.06.71-.24 2.53-.54 3.79 1.43-.37 3.39-1.01 4.58-1.55.67.19 1.39.3 2.1.3 5.52 0 10-4.03 10-9S17.52 2 12 2zm1.2 12.39l-2.67-2.85-5.23 2.85 5.76-6.11 2.64 2.85 5.26-2.85-5.76 6.11z"/></svg>`;
@@ -856,7 +896,6 @@
             <div id="insights" class="tab-content">
                 <div class="card glass">
                     <h2>Live Insights</h2>
-                    
                     <div class="insights-controls">
                         <div class="insights-platforms">
                             <div class="platform-chip active" id="chip-facebook" onclick="setInsightPlatform('facebook')">
@@ -869,7 +908,6 @@
                                 ${iconMsg} Messenger
                             </div>
                         </div>
-                        
                         <select class="period-select" id="insight-period" onchange="setInsightPeriod(this.value)">
                             <option value="day">Daily</option>
                             <option value="week">Weekly</option>
@@ -877,15 +915,12 @@
                             <option value="month">Monthly</option>
                         </select>
                     </div>
-
                     <div id="insights-grid" class="stats-grid">
                         <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:#888;">Select a platform to view data</div>
                     </div>
-
                     <div class="posts-container" id="posts-section" style="display:none;">
                         <div class="posts-header">Recent Posts Performance</div>
-                        <div id="posts-list">
-                            </div>
+                        <div id="posts-list"></div>
                     </div>
                 </div>
             </div>`;
@@ -937,7 +972,6 @@
             if(tabId === 'inbox') color = '#ffffff'; 
             if(tabId === 'insights') {
                 color = '#7C4DFF'; 
-                // Trigger initial load for default platform if empty
                 if(document.getElementById('insights-grid').children.length <= 1) {
                     setInsightPlatform('facebook'); 
                 }
@@ -954,17 +988,15 @@
         }
 
         // ==========================================
-        //        LIVE INSIGHTS LOGIC (NEW)
+        //        LIVE INSIGHTS LOGIC
         // ==========================================
 
         function setInsightPlatform(platform) {
             insightPlatform = platform;
             
-            // Update Chips UI
             document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
             document.getElementById(`chip-${platform}`).classList.add('active');
 
-            // Handle Period Selector logic
             const periodSelect = document.getElementById('insight-period');
             if (platform === 'instagram') {
                 periodSelect.value = 'day';
@@ -973,7 +1005,6 @@
                 periodSelect.disabled = false;
             }
 
-            // SHOW/HIDE POSTS SECTION
             const postsSec = document.getElementById('posts-section');
             if(platform === 'facebook' || platform === 'instagram') {
                 postsSec.style.display = 'block';
@@ -995,7 +1026,6 @@
             grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center;"><div class="spinner" style="width:30px; height:30px; margin:0 auto;"></div></div>';
 
             try {
-                // Send POST request with parameters to n8n
                 const response = await fetch(INSIGHTS_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1018,7 +1048,7 @@
             }
         }
 
-        // --- FETCH POSTS WITH COMMENTS SUPPORT ---
+        // --- FETCH POSTS ---
         async function fetchPosts(platform) {
             const list = document.getElementById('posts-list');
             list.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">Loading posts...</div>';
@@ -1028,12 +1058,12 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        platform: platform + '_posts' // e.g., 'facebook_posts' or 'instagram_posts'
+                        platform: platform + '_posts' 
                     })
                 });
 
                 const data = await response.json();
-                cachedPosts = data.posts || []; // Store data globally
+                cachedPosts = data.posts || [];
 
                 if(cachedPosts.length === 0) {
                     list.innerHTML = '<div style="padding:20px; text-align:center;">No recent posts found.</div>';
@@ -1050,7 +1080,6 @@
                         if(reachObj) reach = reachObj.values[0].value;
                     }
 
-                    // Image Logic
                     const img = post.full_picture || post.media_url || post.thumbnail_url || ''; 
                     const text = post.message || post.caption || 'No caption';
 
@@ -1085,16 +1114,13 @@
             const post = cachedPosts[index];
             if(!post) return;
 
-            // 1. Populate Media & Header
             document.getElementById('m-img').src = post.full_picture || post.media_url || post.thumbnail_url || '';
             document.getElementById('m-date').innerText = new Date(post.created_time || post.timestamp).toDateString();
             document.getElementById('m-caption').innerText = post.message || post.caption || 'No caption';
 
-            // 2. Populate Stats
             let likes = post.like_count || (post.likes ? post.likes.summary.total_count : 0);
             let commentsCount = post.comments_count || (post.comments && post.comments.data ? post.comments.data.length : 0); 
             
-            // Facebook specific summary check
             if(post.likes && post.likes.summary) likes = post.likes.summary.total_count;
             
             let reach = 0;
@@ -1107,7 +1133,6 @@
             document.getElementById('m-comments').innerText = commentsCount;
             document.getElementById('m-reach').innerText = reach;
 
-            // 3. Populate Comments List
             const commentsList = document.getElementById('m-comments-list');
             commentsList.innerHTML = '';
             
@@ -1132,7 +1157,6 @@
                 });
             }
 
-            // 4. Show Modal
             document.getElementById('post-modal').style.display = 'flex';
         }
 
@@ -1290,16 +1314,22 @@
             return Array.from(inputs).map(input => input.value.trim()).filter(val => val !== "").join(', ');
         }
 
+        // --- UPDATED CONFIG FETCH (INCLUDES SWITCH STATUS) ---
         async function fetchCurrentConfigurations() {
             try {
                 const response = await fetch(CONFIG_WEBHOOK, { method: 'GET' });
                 if (response.ok) {
                     const data = await response.json();
                     AGENTS.forEach(agent => {
+                        // 1. Load System Prompt
                         const promptVal = data[`system_prompt_${agent.id}`];
                         if(promptVal) document.getElementById(`prompt-${agent.id}`).value = promptVal;
+                        
+                        // 2. Load Tone
                         const toneVal = data[`agent_tone_${agent.id}`];
                         if(toneVal) document.getElementById(`tone-${agent.id}`).value = toneVal;
+                        
+                        // 3. Load Links
                         const linksVal = data[`links_${agent.id}`];
                         if(linksVal) {
                             const linksArray = linksVal.split(',');
@@ -1307,6 +1337,12 @@
                         } else {
                             addLinkField(agent.id);
                         }
+
+                        // 4. Load Active Switch Status (NEW)
+                        // Assuming your DB returns a key like "active_website" or similar
+                        // If it doesn't exist yet, it defaults to false (OFF)
+                        const isActive = data[`active_${agent.id}`] === true || data[`active_${agent.id}`] === "true";
+                        document.getElementById(`status-${agent.id}`).checked = isActive;
                     });
                 }
             } catch (error) { AGENTS.forEach(a => addLinkField(a.id)); } 
@@ -1319,6 +1355,7 @@
             const btn = document.querySelector(`#${agentId} .save-btn`);
             const originalText = btn.innerText;
             btn.innerText = "Saving...";
+            
             try {
                 const payload = {
                     agent_source: agentId,
@@ -1327,6 +1364,10 @@
                 };
                 payload[`agent_tone_${agentId}`] = tone;
                 payload[`links_${agentId}`] = linksString;
+                
+                // We send a normal "save config" action here
+                // The switch status is saved separately when toggled, but good to send here too if you want
+                
                 await fetch(CONFIG_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1335,6 +1376,35 @@
                 showToast("Saved Successfully!", "success");
             } catch(e) { showToast("Error saving data", "error"); } 
             finally { btn.innerText = originalText; }
+        }
+
+        // --- NEW FUNCTION: TOGGLE AGENT STATUS ---
+        async function toggleAgentStatus(agentId) {
+            const isChecked = document.getElementById(`status-${agentId}`).checked;
+            const label = document.querySelector(`#${agentId} .toggle-label`);
+            
+            // Visual feedback immediately
+            label.style.opacity = "0.5";
+            
+            try {
+                await fetch(CONFIG_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'toggle_status', // Special flag for n8n
+                        agent_source: agentId,
+                        is_active: isChecked
+                    })
+                });
+                showToast(`${isChecked ? 'Activated' : 'Deactivated'} ${agentId}`, "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Failed to update status", "error");
+                // Revert switch if failed
+                document.getElementById(`status-${agentId}`).checked = !isChecked;
+            } finally {
+                label.style.opacity = "1";
+            }
         }
 
         function toggleSection(sectionId, isChat = false, agentId = null) {
