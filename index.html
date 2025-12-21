@@ -16,6 +16,9 @@
             --text-muted: #a0a0a0;
             --success: #66BB6A; 
             --error: #EF5350;     
+            --warning-bg: rgba(255, 193, 7, 0.15);
+            --warning-border: rgba(255, 193, 7, 0.4);
+            --warning-text: #ffca28;
             --sidebar-width: 70px;
             --sidebar-expanded: 240px;
             --mobile-header-height: 60px;
@@ -515,6 +518,71 @@
         select { appearance: none; cursor: pointer; }
         select option { background: #1a1b20; color: white; }
 
+        /* --- NEW PROMPT WARNING & LOCK STYLES --- */
+        .prompt-warning {
+            background: var(--warning-bg); 
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        .prompt-warning.show { display: flex; }
+
+        /* Lock Button & Disabled State */
+        .edit-lock-btn {
+            background: rgba(255, 193, 7, 0.1); 
+            border: 1px solid var(--warning-text); 
+            color: var(--warning-text);
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            cursor: pointer; 
+            margin-bottom: 10px; 
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        .edit-lock-btn:hover { background: rgba(255, 193, 7, 0.2); }
+        .textarea-locked { opacity: 0.6; cursor: not-allowed; }
+
+        /* --- CONFIRMATION MODAL --- */
+        .confirm-modal-overlay { 
+            display: none; 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.7); z-index: 5000; 
+            align-items:center; justify-content:center; 
+            backdrop-filter: blur(5px); 
+        }
+        .confirm-modal { 
+            background: #1a1b20; 
+            border: 1px solid var(--error); 
+            padding: 30px; 
+            border-radius: 16px; 
+            max-width: 400px; 
+            text-align: center; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); 
+            animation: popIn 0.3s ease; 
+        }
+        .confirm-title { 
+            font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; 
+            color: var(--error); display: flex; align-items: center; justify-content: center; gap: 10px; 
+        }
+        .confirm-text { color: #ccc; margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
+        .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+        .btn-cancel { background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; }
+        .btn-confirm { background: var(--error); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+        .btn-confirm:hover { filter: brightness(1.2); }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+
         /* --- Dynamic Links --- */
         .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .remove-link { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3); width: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; cursor: pointer; font-size: 1.2rem; }
@@ -734,6 +802,21 @@
         </main>
     </div>
 
+    <div id="unlock-modal" class="confirm-modal-overlay">
+        <div class="confirm-modal">
+            <div class="confirm-title">⚠️ Critical Warning</div>
+            <div class="confirm-text">
+                Changing the System Prompt will fundamentally alter how this agent behaves, answers, and interacts.
+                <br><br>
+                Are you sure you want to proceed?
+            </div>
+            <div class="confirm-actions">
+                <button class="btn-cancel" onclick="closeUnlockModal()">Cancel</button>
+                <button class="btn-confirm" onclick="confirmUnlockAgent()">Yes, Unlock Editing</button>
+            </div>
+        </div>
+    </div>
+
     <div id="post-modal" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-close" onclick="closeModal()">×</div>
@@ -792,6 +875,7 @@
         let currentInboxPlatform = null;
         let currentChatUser = null;
         let currentChatUserName = null; 
+        let agentToUnlock = null; // Track which agent is being unlocked
         
         let insightPlatform = 'facebook';
         let insightPeriod = 'day';
@@ -903,7 +987,17 @@
                         <div class="section-wrapper">
                             <div class="section-header active" onclick="toggleSection('${agent.id}-prompt-sec')">Agent Role (System Prompt)</div>
                             <div id="${agent.id}-prompt-sec" class="section-content open">
-                                <textarea id="prompt-${agent.id}" placeholder="Define how your agent should behave..."></textarea>
+                                <div id="warning-${agent.id}" class="prompt-warning">
+                                    <span style="font-size:1.2rem;">⚠️</span>
+                                    <span><b>Caution:</b> Modifying the system prompt will directly alter the agent's personality and behavior.</span>
+                                </div>
+                                
+                                <div onclick="requestUnlock('${agent.id}')" class="edit-lock-btn" id="lock-btn-${agent.id}">
+                                    <span>🔒</span> Locked - Click to Edit
+                                </div>
+
+                                <textarea id="prompt-${agent.id}" class="textarea-locked" readonly placeholder="Define how your agent should behave..."></textarea>
+                                
                                 <div class="suggestions">
                                     <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'customer_service')">✨ Customer Service</button>
                                     <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'sales')">🚀 Sales Agent</button>
@@ -989,7 +1083,8 @@
             const iconWebsite = `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
             const iconWhatsapp = `<svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c1.024.558 1.815.842 2.802.842h.002c3.178 0 5.769-2.587 5.769-5.766 0-1.545-.601-2.997-1.692-4.088-1.09-1.091-2.539-1.691-4.085-1.691zm0-2c2.083 0 4.041.812 5.513 2.285 1.472 1.474 2.282 3.432 2.281 5.515 0 4.296-3.499 7.794-7.796 7.794-1.312 0-2.551-.33-3.666-.921l-4.093 1.073 1.092-3.987c-.672-1.163-1.025-2.478-1.025-3.959.001-4.301 3.502-7.8 7.802-7.8"/></svg>`;
             const iconMessenger = `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.86 7.02-.06.71-.24 2.53-.54 3.79 1.43-.37 3.39-1.01 4.58-1.55.67.19 1.39.3 2.1.3 5.52 0 10-4.03 10-9S17.52 2 12 2zm1.2 12.39l-2.67-2.85-5.23 2.85 5.76-6.11 2.64 2.85 5.26-2.85-5.76 6.11z"/></svg>`;
-            const iconInstagram = `<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
+           // Replace the old iconInstagram line with this one:
+const iconInstagram = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z" fill-rule="evenodd"/></svg>`;
 
             html += `
             <div id="inbox" class="tab-content">
@@ -1074,7 +1169,62 @@
         }
 
         // ==========================================
-        //        LEADS AREA LOGIC (NEW)
+        //        LOCK & WARNING LOGIC
+        // ==========================================
+
+        function requestUnlock(agentId) {
+            agentToUnlock = agentId;
+            document.getElementById('unlock-modal').style.display = 'flex';
+        }
+
+        function closeUnlockModal() {
+            document.getElementById('unlock-modal').style.display = 'none';
+            agentToUnlock = null;
+        }
+
+        function confirmUnlockAgent() {
+            if (!agentToUnlock) return;
+
+            // 1. Enable textarea
+            const textarea = document.getElementById(`prompt-${agentToUnlock}`);
+            textarea.removeAttribute('readonly');
+            textarea.classList.remove('textarea-locked');
+            
+            // 2. Hide Lock Button
+            const lockBtn = document.getElementById(`lock-btn-${agentToUnlock}`);
+            lockBtn.style.display = 'none';
+
+            // 3. Show Warning Banner
+            const warningBanner = document.getElementById(`warning-${agentToUnlock}`);
+            warningBanner.classList.add('show');
+
+            // 4. Focus
+            textarea.focus();
+
+            // 5. Close Modal
+            closeUnlockModal();
+        }
+
+        function showPromptWarning(agentId) {
+            // Backup trigger if user managed to type without unlocking (edge case)
+            const w = document.getElementById(`warning-${agentId}`);
+            if(w) w.classList.add('show');
+        }
+
+        function applySuggestion(agentId, type) { 
+            // If locked, request unlock first
+            const textarea = document.getElementById(`prompt-${agentId}`);
+            if(textarea.hasAttribute('readonly')) {
+                requestUnlock(agentId);
+                return;
+            }
+
+            document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type]; 
+            showPromptWarning(agentId);
+        }
+
+        // ==========================================
+        //        LEADS AREA LOGIC
         // ==========================================
 
         async function fetchLeads() {
@@ -1572,6 +1722,14 @@
                     body: JSON.stringify(payload)
                 });
                 showToast("Saved Successfully!", "success");
+                
+                // HIDE WARNING ON SUCCESSFUL SAVE AND RELOCK
+                const warn = document.getElementById(`warning-${agentId}`);
+                if(warn) warn.classList.remove('show');
+                
+                // Optional: Re-Lock after saving? Let's leave it unlocked so they can continue edits until reload.
+                // But remove the warning banner is good.
+
             } catch(e) { showToast("Error saving data", "error"); } 
             finally { btn.innerText = originalText; }
         }
@@ -1620,8 +1778,6 @@
         }
 
         function handleEnter(e, agentId) { if(e.key === 'Enter') sendChatMessage(agentId); }
-        function applySuggestion(agentId, type) { document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type]; }
-
         function showToast(msg, type) {
             const t = document.getElementById('toast');
             t.className = type; t.innerText = msg; t.classList.add('show');
