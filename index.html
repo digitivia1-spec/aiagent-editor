@@ -15,7 +15,7 @@
             --text-main: #ffffff;
             --text-muted: #a0a0a0;
             --success: #66BB6A; 
-            --error: #EF5350;    
+            --error: #EF5350;     
             --sidebar-width: 70px;
             --sidebar-expanded: 240px;
             --mobile-header-height: 60px;
@@ -176,7 +176,10 @@
             list-style: none;
             flex: 1;
             padding-top: 20px;
+            overflow-y: auto; /* Allow scroll if list is long */
         }
+        /* Hide scrollbar for nav list */
+        .nav-list::-webkit-scrollbar { width: 0px; }
 
         .nav-item {
             display: flex;
@@ -245,7 +248,7 @@
         main {
             flex: 1;
             padding: 2rem;
-            max-width: 1200px;
+            max-width: 1400px; /* Increased slightly for Grid */
             width: 100%;
             margin: 0 auto;
         }
@@ -565,6 +568,46 @@
         
         .inbox-header { padding: 15px; border-bottom: 1px solid var(--glass-border); font-weight: bold; background: rgba(0,0,0,0.1); }
 
+        /* --- LEADS GRID STYLES (NEW) --- */
+        .leads-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .leads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .lead-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .lead-card:hover {
+            border-color: var(--theme-color);
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.05);
+        }
+        .lead-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: flex-start; }
+        .lead-name { font-weight: 700; font-size: 1.1rem; color: white; display: flex; align-items: center; gap: 8px;}
+        .lead-platform { font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; background: rgba(255,255,255,0.1); color: var(--text-muted); text-transform: capitalize; }
+        .lead-info-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #ddd; }
+        .lead-info-icon { opacity: 0.6; width: 16px; text-align: center; }
+        .status-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-qualified { background: rgba(102, 187, 106, 0.2); color: #66BB6A; border: 1px solid rgba(102, 187, 106, 0.3); }
+        .status-pending { background: rgba(255, 167, 38, 0.2); color: #ffa726; border: 1px solid rgba(255, 167, 38, 0.3); }
+        .status-new { background: rgba(41, 182, 246, 0.2); color: #29b6f6; border: 1px solid rgba(41, 182, 246, 0.3); }
+        
+        .export-group { display: flex; gap: 10px; }
+        .export-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white;
+            padding: 8px 16px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .export-btn:hover { background: var(--theme-color); border-color: var(--theme-color); }
+
         /* --- Actions --- */
         .suggestions { margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
         .pill-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
@@ -613,6 +656,9 @@
             .modal-content { flex-direction: column; height: 90vh; }
             .modal-media { flex: 0.8; max-height: 40%; }
             .modal-info { flex: 1; }
+            
+            .leads-controls { flex-direction: column; gap: 10px; align-items: stretch; }
+            .export-group { justify-content: space-between; }
         }
     </style>
 </head>
@@ -663,6 +709,10 @@
             <li class="nav-item" onclick="switchTab('inbox', this)">
                 <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
                 <span class="nav-label">Live Inbox</span>
+            </li>
+            <li class="nav-item" onclick="switchTab('leads', this)">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+                <span class="nav-label">Leads Area</span>
             </li>
         </ul>
         <div class="sidebar-footer">
@@ -722,6 +772,7 @@
         const HISTORY_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/getchathistory"; 
         const AUTH_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/login_creds";
         const INSIGHTS_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/insightsgrab";
+        const LEADS_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/getLeads";
 
         // Define Agents & Colors
         const AGENTS = [
@@ -745,6 +796,7 @@
         let insightPlatform = 'facebook';
         let insightPeriod = 'day';
         let cachedPosts = [];
+        let cachedLeads = []; // Store leads for export
 
         // ==========================================
         //        AUTH LOGIC (GATEKEEPER)
@@ -961,6 +1013,28 @@
                 </div>
             </div>`;
 
+            // D. LEADS AREA TAB (NEW)
+            html += `
+            <div id="leads" class="tab-content">
+                <div class="card glass">
+                    <div class="leads-controls">
+                        <h2>Leads Area</h2>
+                        <div class="export-group">
+                            <button class="export-btn" onclick="exportLeadsCSV()">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                Export CSV
+                            </button>
+                            <button class="export-btn" onclick="exportLeadsExcel()">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14h-2v-4H6v-2h2V7h2v4h3v2h-3v4zm6-5h-2V7h2v5z"/></svg>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div id="leads-grid" class="leads-grid">
+                        </div>
+                </div>
+            </div>`;
+
             container.innerHTML = html;
             document.getElementById('website').classList.add('active');
         }
@@ -978,6 +1052,10 @@
             if(tabId === 'instagram') color = '#C66B8D';
             if(tabId === 'website') color = '#5BAEB0';
             if(tabId === 'inbox') color = '#ffffff'; 
+            if(tabId === 'leads') {
+                color = '#e6b72a'; // Gold for leads
+                fetchLeads(); // Fetch data when tab opens
+            }
             if(tabId === 'insights') {
                 color = '#7C4DFF'; 
                 if(document.getElementById('insights-grid').children.length <= 1) {
@@ -993,6 +1071,118 @@
 
         function toggleMobileMenu() {
             document.getElementById('mainSidebar').classList.toggle('mobile-open');
+        }
+
+        // ==========================================
+        //        LEADS AREA LOGIC (NEW)
+        // ==========================================
+
+        async function fetchLeads() {
+            const grid = document.getElementById('leads-grid');
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center;"><div class="spinner" style="width:30px; height:30px; margin:0 auto;"></div><p style="margin-top:10px; color:#888;">Fetching Leads...</p></div>';
+
+            try {
+                const response = await fetch(LEADS_WEBHOOK, { method: 'GET' });
+                
+                if (!response.ok) throw new Error("API Error");
+                
+                const data = await response.json();
+                
+                // Assuming data is array based on your snippet. If it's wrapped in object { leads: [...] }, adjust below.
+                const leads = Array.isArray(data) ? data : (data.leads || []);
+                cachedLeads = leads; // Store for export
+
+                if(leads.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px;">No leads found.</div>';
+                    return;
+                }
+
+                renderLeads(leads);
+
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color: var(--error);">Failed to load leads. Check connection.</div>';
+            }
+        }
+
+        function renderLeads(leads) {
+            const grid = document.getElementById('leads-grid');
+            grid.innerHTML = '';
+
+            leads.forEach(lead => {
+                const name = lead.user_name || "Unknown User";
+                const phone = lead.phone_number || "No Phone";
+                const platform = lead.platform || "N/A";
+                const status = lead.status || "New";
+                const lastMsg = lead.last_message || "No message";
+                const date = lead.timestamp || lead.createdAt || "";
+
+                // Determine Status Badge Class
+                let statusClass = "status-new";
+                if(status.toLowerCase() === 'qualified') statusClass = "status-qualified";
+                else if(status.toLowerCase() === 'pending') statusClass = "status-pending";
+
+                const card = document.createElement('div');
+                card.className = 'lead-card';
+                card.innerHTML = `
+                    <div class="lead-header">
+                        <div class="lead-name">
+                             ${name}
+                        </div>
+                        <div class="lead-platform">${platform}</div>
+                    </div>
+                    <div class="lead-info-row">
+                        <span class="lead-info-icon">📞</span> ${phone}
+                    </div>
+                    <div class="lead-info-row">
+                        <span class="lead-info-icon">💬</span> "${lastMsg.length > 30 ? lastMsg.substring(0,30)+'...' : lastMsg}"
+                    </div>
+                    <div class="lead-info-row" style="font-size:0.8rem; color:#888; margin-top:10px; justify-content: space-between;">
+                        <span>${date.replace('T', ' ').substring(0, 16)}</span>
+                        <span class="status-badge ${statusClass}">${status}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function exportLeadsCSV() {
+            if(cachedLeads.length === 0) { showToast("No leads to export", "error"); return; }
+            
+            const keys = Object.keys(cachedLeads[0]);
+            const csvContent = [
+                keys.join(","), // Header
+                ...cachedLeads.map(row => keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(",")) // Rows
+            ].join("\n");
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `leads_export_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        function exportLeadsExcel() {
+             if(cachedLeads.length === 0) { showToast("No leads to export", "error"); return; }
+
+             // Simple HTML Table export which Excel opens nicely
+             let table = '<table><thead><tr>';
+             const keys = Object.keys(cachedLeads[0]);
+             keys.forEach(k => table += `<th>${k}</th>`);
+             table += '</tr></thead><tbody>';
+             
+             cachedLeads.forEach(row => {
+                 table += '<tr>';
+                 keys.forEach(k => table += `<td>${row[k] || ''}</td>`);
+                 table += '</tr>';
+             });
+             table += '</tbody></table>';
+
+             const blob = new Blob([table], { type: "application/vnd.ms-excel" });
+             const link = document.createElement("a");
+             link.href = URL.createObjectURL(blob);
+             link.download = `leads_export_${new Date().toISOString().slice(0,10)}.xls`;
+             link.click();
         }
 
         // ==========================================
