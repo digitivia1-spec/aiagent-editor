@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Agent Command Center</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             /* --- CALM PALETTE --- */
@@ -19,6 +20,8 @@
             --sidebar-width: 70px;
             --sidebar-expanded: 240px;
             --mobile-header-height: 60px;
+            --warning-bg: rgba(239, 83, 80, 0.15);
+            --warning-text: #ef5350;
         }
 
         * {
@@ -137,7 +140,6 @@
             white-space: nowrap;
         }
         
-        /* Show content on Hover OR when Mobile Menu is Open */
         .sidebar:hover .sidebar-header,
         .sidebar.mobile-open .sidebar-header {
             justify-content: flex-start;
@@ -166,7 +168,6 @@
             width: auto;
         }
 
-        /* Show Text on Hover OR Mobile Open */
         .sidebar:hover .logo-text,
         .sidebar.mobile-open .logo-text {
             opacity: 1;
@@ -221,7 +222,6 @@
             transition: opacity 0.2s;
         }
 
-        /* Show Label on Hover OR Mobile Open */
         .sidebar:hover .nav-label,
         .sidebar.mobile-open .nav-label {
             opacity: 1;
@@ -237,7 +237,7 @@
         #app-container {
             display: none;
             flex: 1;
-            margin-left: var(--sidebar-width); /* Push content */
+            margin-left: var(--sidebar-width); 
             transition: margin-left 0.3s;
             width: calc(100% - var(--sidebar-width));
         }
@@ -258,230 +258,97 @@
         h2 { margin-bottom: 1.5rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
         .icon-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--theme-color); display: inline-block; transition: background 0.3s; }
 
-        /* --- TOGGLE SWITCH STYLES (NEW & FIXED) --- */
-        .agent-header-row {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
-        }
-        .agent-title {
-            display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 500; margin: 0;
-        }
-        .agent-toggle-container {
-            display: flex; align-items: center; gap: 12px; 
-        }
-        .toggle-label { 
-            font-size: 0.9rem; 
-            color: var(--text-muted); 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            font-weight: 600;
-            line-height: 1; /* Fixes vertical alignment */
-            transform: translateY(1px); /* Optical center fix */
-        }
-        
-        .switch {
-            position: relative; display: inline-block; width: 50px; height: 26px;
-        }
+        /* --- TOGGLE SWITCH STYLES --- */
+        .agent-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .agent-title { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 500; margin: 0; }
+        .agent-toggle-container { display: flex; align-items: center; gap: 12px; }
+        .toggle-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; line-height: 1; transform: translateY(1px); }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333; transition: .4s; border-radius: 34px;
-            border: 1px solid var(--glass-border);
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 2px;
-            background-color: white; transition: .4s; border-radius: 50%;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid var(--glass-border); }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--success); border-color: var(--success); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* --- INSIGHTS STYLES --- */
-        .insights-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 15px;
+        /* --- LEADS AREA STYLES (NEW) --- */
+        .leads-controls {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
+        .leads-filter {
+            display: flex; gap: 10px;
+        }
+        .leads-export {
+            display: flex; gap: 10px;
+        }
+        .export-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s; font-size: 0.9rem;
+        }
+        .export-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--theme-color); }
+        .export-btn.excel { color: #81C784; }
+        .export-btn.csv { color: #64B5F6; }
 
-        .insights-platforms {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap !important;
-            justify-content: center !important;
+        .leads-table-container {
+            width: 100%; overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid var(--glass-border);
         }
+        .leads-table {
+            width: 100%; border-collapse: collapse; min-width: 800px;
+        }
+        .leads-table th, .leads-table td {
+            padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .leads-table th {
+            background: rgba(255,255,255,0.03); font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .leads-table tr:hover { background: rgba(255,255,255,0.02); }
+        .lead-platform-icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .lead-status {
+            padding: 4px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+            background: rgba(255,255,255,0.1); color: #ddd;
+        }
+        .lead-status.new { background: rgba(102, 187, 106, 0.2); color: #66BB6A; }
+        .lead-status.contacted { background: rgba(66, 165, 245, 0.2); color: #42A5F5; }
 
-        .platform-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--text-muted);
-        }
-
-        .platform-chip:hover, .platform-chip.active {
-            background: var(--theme-color);
-            color: white;
-            border-color: var(--theme-color);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .period-select {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            outline: none;
-            min-width: 150px;
-        }
-        
-        .period-select:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: rgba(0,0,0,0.5);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: transform 0.3s, border 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--theme-color);
-        }
-
-        .stat-title {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        .stat-trend {
-            font-size: 0.8rem;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        /* --- INSIGHTS & INBOX STYLES REMAIN SAME --- */
+        .insights-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 15px; }
+        .insights-platforms { display: flex; gap: 15px; flex-wrap: wrap !important; justify-content: center !important; }
+        .platform-chip { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 50px; cursor: pointer; transition: all 0.3s; color: var(--text-muted); }
+        .platform-chip:hover, .platform-chip.active { background: var(--theme-color); color: white; border-color: var(--theme-color); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .period-select { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 8px 16px; border-radius: 12px; cursor: pointer; outline: none; min-width: 150px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; }
+        .stat-card { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.3s, border 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--theme-color); }
+        .stat-title { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 2.2rem; font-weight: 700; color: white; }
+        .stat-trend { font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 5px; }
 
         /* --- POSTS LIST STYLES --- */
         .posts-container { margin-top: 3rem; }
         .posts-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: white; border-left: 4px solid var(--theme-color); padding-left: 15px; }
-
-        .post-row {
-            display: flex;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            margin-bottom: 15px;
-            padding: 15px;
-            gap: 20px;
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
+        .post-row { display: flex; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 15px; padding: 15px; gap: 20px; transition: transform 0.2s; cursor: pointer; }
         .post-row:hover { transform: translateX(5px); background: rgba(255,255,255,0.06); }
-
-        .post-thumb {
-            width: 80px; height: 80px;
-            border-radius: 8px;
-            background-size: cover;
-            background-position: center;
-            background-color: #333;
-            flex-shrink: 0;
-        }
-
+        .post-thumb { width: 80px; height: 80px; border-radius: 8px; background-size: cover; background-position: center; background-color: #333; flex-shrink: 0; }
         .post-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .post-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
         .post-text { font-size: 0.95rem; line-height: 1.4; color: #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; unicode-bidi: plaintext; text-align: start; }
-
-        .post-stats {
-            display: flex; gap: 20px;
-            align-items: center;
-            border-left: 1px solid rgba(255,255,255,0.1);
-            padding-left: 20px;
-            min-width: 200px;
-        }
+        .post-stats { display: flex; gap: 20px; align-items: center; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px; min-width: 200px; }
         .p-stat { text-align: center; }
         .p-stat-val { font-size: 1.1rem; font-weight: 700; color: white; }
         .p-stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
 
-        /* --- POST DETAILS MODAL (NEW) --- */
-        .modal-overlay {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
-            z-index: 4000; justify-content: center; align-items: center;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-content {
-            background: #1a1b20;
-            width: 100%; max-width: 900px; height: 80vh;
-            border-radius: 20px; border: 1px solid var(--glass-border);
-            display: flex; overflow: hidden;
-            position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .modal-close {
-            position: absolute; top: 15px; right: 20px;
-            font-size: 1.5rem; color: white; cursor: pointer; z-index: 10;
-            background: rgba(0,0,0,0.5); width: 35px; height: 35px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* Split Layout */
-        .modal-media {
-            flex: 1.2; background: black;
-            display: flex; align-items: center; justify-content: center;
-        }
+        /* --- MODALS --- */
+        .modal-overlay, .modal-overlay-warning { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 4000; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.3s ease; }
+        .modal-content { background: #1a1b20; width: 100%; max-width: 900px; height: 80vh; border-radius: 20px; border: 1px solid var(--glass-border); display: flex; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: white; cursor: pointer; z-index: 10; background: rgba(0,0,0,0.5); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .modal-media { flex: 1.2; background: black; display: flex; align-items: center; justify-content: center; }
         .modal-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-
-        .modal-info {
-            flex: 1; display: flex; flex-direction: column;
-            border-left: 1px solid var(--glass-border);
-            background: #1a1b20;
-        }
-
+        .modal-info { flex: 1; display: flex; flex-direction: column; border-left: 1px solid var(--glass-border); background: #1a1b20; }
         .modal-header { padding: 20px; border-bottom: 1px solid var(--glass-border); }
         .m-date { font-size: 0.8rem; color: var(--text-muted); }
         .m-caption { margin-top: 10px; font-size: 0.95rem; line-height: 1.5; max-height: 150px; overflow-y: auto; unicode-bidi: plaintext; text-align: start; }
-
-        .modal-stats {
-            padding: 15px 20px; display: flex; gap: 20px;
-            background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--glass-border);
-        }
+        .modal-stats { padding: 15px 20px; display: flex; gap: 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--glass-border); }
         .m-stat { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #ddd; }
-
         .comments-section { flex: 1; overflow-y: auto; padding: 20px; }
         .comment-row { margin-bottom: 15px; display: flex; gap: 10px; }
         .comment-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--theme-color); flex-shrink: 0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.7rem;}
@@ -489,130 +356,54 @@
         .comment-user { font-weight: 700; font-size: 0.8rem; margin-bottom: 3px; color: var(--theme-color); }
         .comment-text { unicode-bidi: plaintext; text-align: start; }
 
-        /* --- Accordion Styles --- */
-        .section-wrapper { margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1.5rem; }
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            padding: 0.5rem 0; color: var(--text-main); font-weight: 600; font-size: 1rem; transition: color 0.3s;
-        }
-        .section-header:hover { color: var(--theme-color); }
-        .section-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.3s; }
-        .section-header.active::after { transform: rotate(180deg); }
-        .section-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease; opacity: 0; }
-        .section-content.open { max-height: 1000px; opacity: 1; margin-top: 1rem; }
+        /* --- WARNING COMPONENTS --- */
+        .warning-box { display: none; background: var(--warning-bg); border: 1px solid var(--warning-text); color: var(--warning-text); padding: 10px 15px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 10px; align-items: center; gap: 10px; animation: fadeIn 0.3s ease; }
+        .warning-box.active { display: flex; }
+        .modal-overlay-warning { z-index: 5000; backdrop-filter: blur(5px); }
+        .warning-content { background: #1a1b20; width: 100%; max-width: 450px; border-radius: 20px; border: 1px solid var(--error); padding: 2rem; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .warn-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .warn-title { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
+        .warn-text { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; line-height: 1.5; }
+        .warn-actions { display: flex; gap: 10px; justify-content: center; }
+        .btn-cancel { background: rgba(255,255,255,0.1); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+        .btn-confirm-save { background: var(--theme-color); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0, 0.3); transition: transform 0.2s; }
+        .btn-confirm-save:hover { transform: translateY(-2px); }
 
-        /* --- Inputs --- */
+        /* --- COMMON FORM ELEMENTS --- */
         label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-        textarea, input[type="text"], select, input[type="password"] {
-            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
-            border-radius: 12px; padding: 1rem; color: white; font-size: 1rem; outline: none; transition: border 0.3s;
-        }
+        textarea, input[type="text"], select, input[type="password"] { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem; color: white; font-size: 1rem; outline: none; transition: border 0.3s; }
         textarea { height: 200px; resize: vertical; line-height: 1.5; }
         textarea:focus, input:focus, select:focus { border-color: var(--theme-color); }
         select { appearance: none; cursor: pointer; }
         select option { background: #1a1b20; color: white; }
-
-        /* --- Dynamic Links --- */
         .link-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .remove-link { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; border: 1px solid rgba(231, 76, 60, 0.3); width: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; cursor: pointer; font-size: 1.2rem; }
         .add-link-btn { width: 100%; margin-top: 5px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 50px; border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.85rem; }
-
-        /* --- Chat Window (Shared) --- */
-        .chat-container { background: rgba(0, 0, 0, 0.3); border-radius: 12px; border: 1px solid var(--glass-border); overflow: hidden; display: flex; flex-direction: column; height: 400px; }
-        .chat-history { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        
-        /* Updated Message Style for Arabic Fix */
-        .message { 
-            max-width: 80%; 
-            padding: 0.8rem 1rem; 
-            border-radius: 12px; 
-            font-size: 0.95rem; 
-            line-height: 1.4; 
-            word-wrap: break-word;
-            unicode-bidi: plaintext; /* AUTO DETECT RTL/LTR */
-            text-align: start;       /* ALIGN BASED ON CONTENT */
-        }
-        
-        .msg-ai { align-self: flex-start; background: #2d2d2d; border-bottom-left-radius: 2px; color: #ddd; }
-        .msg-user { align-self: flex-end; background: var(--theme-color); border-bottom-right-radius: 2px; color: white; transition: background 0.3s; }
-        .chat-input-area { padding: 10px; background: rgba(255,255,255,0.03); display: flex; gap: 10px; border-top: 1px solid var(--glass-border); }
-        .chat-input-area input { padding: 0.8rem; border-radius: 50px; flex: 1; }
-        .send-chat-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--theme-color); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background 0.3s; }
-        
-        /* --- LIVE INBOX SPECIFIC STYLES --- */
-        .inbox-layout { display: flex; height: 75vh; gap: 0; }
-        .inbox-sidebar { width: 300px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; background: rgba(0,0,0,0.2); }
-        .inbox-main { flex: 1; display: flex; flex-direction: column; }
-        
-        .platform-selector { display: flex; justify-content: space-around; padding: 15px; border-bottom: 1px solid var(--glass-border); }
-        .platform-btn { 
-            width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: transform 0.2s; background: rgba(255,255,255,0.1); 
-            fill: white;
-        }
-        .platform-btn:hover, .platform-btn.active { transform: scale(1.1); filter: brightness(1.2); box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-        .platform-btn svg { width: 24px; height: 24px; }
-
-        .contact-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .contact-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; border-radius: 8px; transition: background 0.2s; display: flex; align-items: center; gap: 10px; }
-        .contact-item:hover, .contact-item.active { background: rgba(255,255,255,0.05); }
-        .contact-item.active { border-left: 3px solid var(--theme-color); }
-        .contact-avatar { width: 35px; height: 35px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
-        .contact-info { margin-left: 10px; overflow: hidden; }
-        .contact-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem; }
-        .contact-id { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .inbox-header { padding: 15px; border-bottom: 1px solid var(--glass-border); font-weight: bold; background: rgba(0,0,0,0.1); }
-
-        /* --- Actions --- */
         .suggestions { margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
         .pill-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
         .pill-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.3); }
         .action-container { margin-top: 1rem; display: flex; justify-content: flex-end; }
         .save-btn { background: var(--theme-color); color: white; border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0, 0.3); transition: transform 0.2s, box-shadow 0.2s, background 0.3s; }
         .save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0, 0.5); }
-
-        /* --- Overlays --- */
-        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 3500; left: 50%; bottom: 30px; transform: translateX(-50%); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
-        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-        #toast.success { border-left: 4px solid var(--success); }
-        #toast.error { border-left: 4px solid var(--error); }
-        #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 16, 20, 0.85); backdrop-filter: blur(5px); z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 15px; transition: opacity 0.5s ease; }
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: var(--theme-color); animation: spin 1s ease-in-out infinite; transition: border-top-color 0.3s; }
-        .loading-text { font-size: 0.9rem; color: var(--text-muted); }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        
         /* Mobile Adjustments */
         @media (max-width: 768px) {
             .mobile-top-bar { display: flex; }
-
-            .sidebar-header {
-                display: none !important;
-            }
-            .sidebar { 
-                width: 0; 
-                transition: width 0.3s ease; /* Ensure animation works */
-                z-index: 2001; /* Above Top Bar */
-                background: #0f1014; /* Solid BG for visibility */
-            }
+            .sidebar-header { display: none !important; }
+            .sidebar { width: 0; transition: width 0.3s ease; z-index: 2001; background: #0f1014; }
             .sidebar.mobile-open { width: 240px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
-            
-            #app-container { margin-left: 0; width: 100%; margin-top: 60px; /* Push content down */ }
-            
+            #app-container { margin-left: 0; width: 100%; margin-top: 60px; }
             .nav-list { display: block; }
-            .mobile-hamburger { display: none; } /* Hide old hamburger */
-            
             .inbox-layout { flex-direction: column; height: auto; }
             .inbox-sidebar { width: 100%; height: 300px; border-right: none; border-bottom: 1px solid var(--glass-border); }
             .inbox-main { height: 500px; }
-
             .post-row { flex-direction: column; }
             .post-stats { border-left: none; padding-left: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; justify-content: space-around; }
-            
             .modal-content { flex-direction: column; height: 90vh; }
             .modal-media { flex: 0.8; max-height: 40%; }
             .modal-info { flex: 1; }
+            .leads-table th, .leads-table td { font-size: 0.8rem; padding: 10px; }
         }
     </style>
 </head>
@@ -660,6 +451,10 @@
                 <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" /></svg></div>
                 <span class="nav-label">Live Insights</span>
             </li>
+            <li class="nav-item" onclick="switchTab('leads', this)">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+                <span class="nav-label">Leads Area</span>
+            </li>
             <li class="nav-item" onclick="switchTab('inbox', this)">
                 <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
                 <span class="nav-label">Live Inbox</span>
@@ -706,9 +501,20 @@
                 
                 <div class="comments-section">
                     <div style="font-size:0.85rem; color:#888; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">Recent Comments</div>
-                    <div id="m-comments-list">
-                        </div>
+                    <div id="m-comments-list"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="save-warning-modal" class="modal-overlay-warning">
+        <div class="warning-content">
+            <div class="warn-icon">⚠️</div>
+            <div class="warn-title">Unsaved Changes</div>
+            <div class="warn-text">You have modified the System Prompt.<br>This will change the agent's behavior. Proceed?</div>
+            <div class="warn-actions">
+                <button class="btn-cancel" onclick="closeSaveWarning()">Cancel</button>
+                <button class="btn-confirm-save" id="btn-confirm-save-action">Confirm Save</button>
             </div>
         </div>
     </div>
@@ -722,6 +528,7 @@
         const HISTORY_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/getchathistory"; 
         const AUTH_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/login_creds";
         const INSIGHTS_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/insightsgrab";
+        const LEADS_WEBHOOK = "https://n8n.srv1174105.hstgr.cloud/webhook/getLeads"; // UPDATE THIS IF DIFFERENT
 
         // Define Agents & Colors
         const AGENTS = [
@@ -745,6 +552,11 @@
         let insightPlatform = 'facebook';
         let insightPeriod = 'day';
         let cachedPosts = [];
+        let allLeads = []; // Store leads data
+
+        // NEW: Store original prompts to detect changes
+        let originalPrompts = {};
+        let pendingAgentId = null;
 
         // ==========================================
         //        AUTH LOGIC (GATEKEEPER)
@@ -849,9 +661,14 @@
                         </div>
 
                         <div class="section-wrapper">
-                            <div class="section-header active" onclick="toggleSection('${agent.id}-prompt-sec')">Agent Role (System Prompt)</div>
+                            <div class="section-header active" onclick="toggleSection('${agent.id}-prompt-sec')">
+                                Agent Role (System Prompt) 
+                            </div>
                             <div id="${agent.id}-prompt-sec" class="section-content open">
-                                <textarea id="prompt-${agent.id}" placeholder="Define how your agent should behave..."></textarea>
+                                <div id="warning-${agent.id}" class="warning-box">
+                                    ⚠️ <strong>Warning:</strong> This edit might change your agent tone or behaviour.
+                                </div>
+                                <textarea id="prompt-${agent.id}" placeholder="Define how your agent should behave..." oninput="checkPromptChange('${agent.id}')"></textarea>
                                 <div class="suggestions">
                                     <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'customer_service')">✨ Customer Service</button>
                                     <button class="pill-btn" onclick="applySuggestion('${agent.id}', 'sales')">🚀 Sales Agent</button>
@@ -895,7 +712,7 @@
                 </div>`;
             });
 
-            // B. LIVE INSIGHTS TAB
+            // B. LIVE INSIGHTS TAB (Same as before)
             const iconFacebook = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 5 3.66 9.13 8.41 9.88V14.9h-2.53v-2.9h2.53V9.79c0-2.5 1.47-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v6.98C18.34 21.13 22 17 22 12c0-5.52-4.48-10-10-10z"/></svg>`;
             const iconInsta = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>`;
             const iconMsg = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.86 7.02-.06.71-.24 2.53-.54 3.79 1.43-.37 3.39-1.01 4.58-1.55.67.19 1.39.3 2.1.3 5.52 0 10-4.03 10-9S17.52 2 12 2zm1.2 12.39l-2.67-2.85-5.23 2.85 5.76-6.11 2.64 2.85 5.26-2.85-5.76 6.11z"/></svg>`;
@@ -932,12 +749,51 @@
                     </div>
                 </div>
             </div>`;
+            
+            // C. LEADS AREA (NEW)
+            html += `
+            <div id="leads" class="tab-content">
+                <div class="card glass">
+                    <h2>Leads Area</h2>
+                    <div class="leads-controls">
+                        <div class="leads-filter">
+                            <select class="period-select" onchange="filterLeads(this.value)">
+                                <option value="all">All Platforms</option>
+                                <option value="website">Website</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="messenger">Messenger</option>
+                                <option value="instagram">Instagram</option>
+                            </select>
+                        </div>
+                        <div class="leads-export">
+                            <button class="export-btn csv" onclick="exportLeads('csv')">📄 Export CSV</button>
+                            <button class="export-btn excel" onclick="exportLeads('xlsx')">📊 Export Excel</button>
+                        </div>
+                    </div>
+                    <div class="leads-table-container">
+                        <table class="leads-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Platform</th>
+                                    <th>Last Message</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leads-table-body">
+                                <tr><td colspan="5" style="text-align:center; padding:30px;">Loading leads...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
 
-            // C. LIVE INBOX TAB
+            // D. LIVE INBOX TAB (Same as before)
             const iconWebsite = `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
             const iconWhatsapp = `<svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c1.024.558 1.815.842 2.802.842h.002c3.178 0 5.769-2.587 5.769-5.766 0-1.545-.601-2.997-1.692-4.088-1.09-1.091-2.539-1.691-4.085-1.691zm0-2c2.083 0 4.041.812 5.513 2.285 1.472 1.474 2.282 3.432 2.281 5.515 0 4.296-3.499 7.794-7.796 7.794-1.312 0-2.551-.33-3.666-.921l-4.093 1.073 1.092-3.987c-.672-1.163-1.025-2.478-1.025-3.959.001-4.301 3.502-7.8 7.802-7.8"/></svg>`;
             const iconMessenger = `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.86 7.02-.06.71-.24 2.53-.54 3.79 1.43-.37 3.39-1.01 4.58-1.55.67.19 1.39.3 2.1.3 5.52 0 10-4.03 10-9S17.52 2 12 2zm1.2 12.39l-2.67-2.85-5.23 2.85 5.76-6.11 2.64 2.85 5.26-2.85-5.76 6.11z"/></svg>`;
-            const iconInstagram = `<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
+            const iconInstagram = `<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
 
             html += `
             <div id="inbox" class="tab-content">
@@ -978,8 +834,10 @@
             if(tabId === 'instagram') color = '#C66B8D';
             if(tabId === 'website') color = '#5BAEB0';
             if(tabId === 'inbox') color = '#ffffff'; 
+            if(tabId === 'leads') color = '#FFB74D'; // Orange for Leads
             if(tabId === 'insights') {
                 color = '#7C4DFF'; 
+                // Trigger initial load for default platform if empty
                 if(document.getElementById('insights-grid').children.length <= 1) {
                     setInsightPlatform('facebook'); 
                 }
@@ -987,12 +845,112 @@
 
             document.documentElement.style.setProperty('--theme-color', color);
             
+            if(tabId === 'leads') fetchLeads(); // Fetch leads when tab opens
+
             // Mobile Menu Close
             document.getElementById('mainSidebar').classList.remove('mobile-open');
         }
 
         function toggleMobileMenu() {
             document.getElementById('mainSidebar').classList.toggle('mobile-open');
+        }
+
+        // ==========================================
+        //        LEADS LOGIC (NEW)
+        // ==========================================
+        async function fetchLeads() {
+            const tbody = document.getElementById('leads-table-body');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px;">Fetching data...</td></tr>';
+            
+            try {
+                const response = await fetch(LEADS_WEBHOOK, { method: 'GET' });
+                const data = await response.json();
+                allLeads = Array.isArray(data) ? data : (data.data || []);
+                
+                renderLeads(allLeads);
+            } catch(e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--error);">Failed to load leads.</td></tr>';
+            }
+        }
+
+        function renderLeads(leads) {
+            const tbody = document.getElementById('leads-table-body');
+            if(leads.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px;">No leads found yet.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            leads.forEach(lead => {
+                let icon = '';
+                if(lead.platform === 'website') icon = '🌐';
+                else if(lead.platform === 'whatsapp') icon = '💬';
+                else if(lead.platform === 'messenger') icon = '⚡';
+                else if(lead.platform === 'instagram') icon = '📸';
+                
+                const date = new Date(lead.timestamp).toLocaleDateString() + ' ' + new Date(lead.timestamp).toLocaleTimeString();
+
+                html += `
+                <tr>
+                    <td style="font-weight:600;">${lead.user_name}</td>
+                    <td><span class="lead-platform-icon">${icon}</span> ${lead.platform}</td>
+                    <td style="color:#aaa; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lead.last_message}</td>
+                    <td style="font-size:0.85rem; color:#888;">${date}</td>
+                    <td><span class="lead-status ${lead.status === 'New' ? 'new' : 'contacted'}">${lead.status}</span></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterLeads(platform) {
+            if(platform === 'all') {
+                renderLeads(allLeads);
+            } else {
+                const filtered = allLeads.filter(l => l.platform === platform);
+                renderLeads(filtered);
+            }
+        }
+
+        function exportLeads(type) {
+            if(allLeads.length === 0) {
+                showToast("No leads to export", "error");
+                return;
+            }
+
+            // Prepare Data
+            const data = allLeads.map(l => ({
+                Name: l.user_name,
+                Platform: l.platform,
+                "Last Message": l.last_message,
+                Date: new Date(l.timestamp).toLocaleString(),
+                Status: l.status,
+                "User ID": l.user_id
+            }));
+
+            if(type === 'xlsx') {
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Leads");
+                XLSX.writeFile(wb, "Digitivia_Leads.xlsx");
+            } else {
+                // Simple CSV Export
+                const headers = Object.keys(data[0]);
+                const csvContent = [
+                    headers.join(','),
+                    ...data.map(row => headers.map(fieldName => JSON.stringify(row[fieldName])).join(','))
+                ].join('\r\n');
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "Digitivia_Leads.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            showToast(`Exported as ${type.toUpperCase()}`, "success");
         }
 
         // ==========================================
@@ -1322,16 +1280,17 @@
             return Array.from(inputs).map(input => input.value.trim()).filter(val => val !== "").join(', ');
         }
 
-        // --- UPDATED CONFIG FETCH (INCLUDES SWITCH STATUS) ---
+        // --- UPDATED CONFIG FETCH (INCLUDES SWITCH STATUS & ORIGINAL PROMPTS) ---
         async function fetchCurrentConfigurations() {
             try {
                 const response = await fetch(CONFIG_WEBHOOK, { method: 'GET' });
                 if (response.ok) {
                     const data = await response.json();
                     AGENTS.forEach(agent => {
-                        // 1. Load System Prompt
-                        const promptVal = data[`system_prompt_${agent.id}`];
-                        if(promptVal) document.getElementById(`prompt-${agent.id}`).value = promptVal;
+                        // 1. Load System Prompt & Store Original for Comparison
+                        const promptVal = data[`system_prompt_${agent.id}`] || "";
+                        document.getElementById(`prompt-${agent.id}`).value = promptVal;
+                        originalPrompts[agent.id] = promptVal; // Store for comparison
                         
                         // 2. Load Tone
                         const toneVal = data[`agent_tone_${agent.id}`];
@@ -1346,9 +1305,7 @@
                             addLinkField(agent.id);
                         }
 
-                        // 4. Load Active Switch Status (NEW)
-                        // Assuming your DB returns a key like "active_website" or similar
-                        // If it doesn't exist yet, it defaults to false (OFF)
+                        // 4. Load Active Switch Status
                         const isActive = data[`active_${agent.id}`] === true || data[`active_${agent.id}`] === "true";
                         document.getElementById(`status-${agent.id}`).checked = isActive;
                     });
@@ -1356,7 +1313,49 @@
             } catch (error) { AGENTS.forEach(a => addLinkField(a.id)); } 
         }
 
-        async function saveRole(agentId) {
+        // --- NEW SAFETY CHECK: REAL-TIME DETECTION ---
+        function checkPromptChange(agentId) {
+            const currentVal = document.getElementById(`prompt-${agentId}`).value;
+            const originalVal = originalPrompts[agentId] || "";
+            const warningBox = document.getElementById(`warning-${agentId}`);
+
+            if (currentVal.trim() !== originalVal.trim()) {
+                warningBox.classList.add('active'); // Show Warning
+            } else {
+                warningBox.classList.remove('active'); // Hide Warning
+            }
+        }
+
+        // --- NEW: SAFETY CHECK ON SAVE (MODAL) ---
+        function saveRole(agentId) {
+            const currentPrompt = document.getElementById(`prompt-${agentId}`).value;
+            const originalPrompt = originalPrompts[agentId] || "";
+
+            // Check if prompt has changed significantly
+            if (currentPrompt.trim() !== originalPrompt.trim()) {
+                pendingAgentId = agentId; // Store agent ID to save
+                document.getElementById('save-warning-modal').style.display = 'flex';
+            } else {
+                // If only Tone/Links changed, save directly
+                executeSave(agentId);
+            }
+        }
+
+        function closeSaveWarning() {
+            document.getElementById('save-warning-modal').style.display = 'none';
+            pendingAgentId = null;
+        }
+
+        // Attach listener to Modal Confirm Button
+        document.getElementById('btn-confirm-save-action').onclick = function() {
+            if(pendingAgentId) {
+                executeSave(pendingAgentId);
+                closeSaveWarning();
+            }
+        };
+
+        // --- ORIGINAL SAVE FUNCTION (Now called executeSave) ---
+        async function executeSave(agentId) {
             const prompt = document.getElementById(`prompt-${agentId}`).value;
             const tone = document.getElementById(`tone-${agentId}`).value;
             const linksString = getLinksAsCommaString(agentId);
@@ -1373,14 +1372,16 @@
                 payload[`agent_tone_${agentId}`] = tone;
                 payload[`links_${agentId}`] = linksString;
                 
-                // We send a normal "save config" action here
-                // The switch status is saved separately when toggled, but good to send here too if you want
-                
                 await fetch(CONFIG_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
+                // Update local originalPrompt so warning disappears
+                originalPrompts[agentId] = prompt;
+                checkPromptChange(agentId); // Re-check to hide warning
+                
                 showToast("Saved Successfully!", "success");
             } catch(e) { showToast("Error saving data", "error"); } 
             finally { btn.innerText = originalText; }
@@ -1430,7 +1431,11 @@
         }
 
         function handleEnter(e, agentId) { if(e.key === 'Enter') sendChatMessage(agentId); }
-        function applySuggestion(agentId, type) { document.getElementById(`prompt-${agentId}`).value = PROMPT_TEMPLATES[type]; }
+        function applySuggestion(agentId, type) { 
+            const textarea = document.getElementById(`prompt-${agentId}`);
+            textarea.value = PROMPT_TEMPLATES[type]; 
+            checkPromptChange(agentId); // Trigger warning check manually
+        }
 
         function showToast(msg, type) {
             const t = document.getElementById('toast');
